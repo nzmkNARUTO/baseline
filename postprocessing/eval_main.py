@@ -12,7 +12,13 @@ def fed_args():
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-rr', '--sys-res_root', type=str, required=True, help='Root directory of the results')
+    parser.add_argument(
+        "-rr",
+        "--sys-res_root",
+        type=str,
+        required=True,
+        help="Root directory of the results",
+    )
 
     args = parser.parse_args()
     return args
@@ -31,6 +37,7 @@ def res_eval():
         recorder.load(os.path.join(args.sys_res_root, f), label=f)
     recorder.plot()
     plt.show()
+    plt.savefig("figures/result.png")
 
 
 if __name__ == "__main__":

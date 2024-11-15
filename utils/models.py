@@ -61,7 +61,7 @@ class LeNet(nn.Module):
         out = F.relu(self.conv1(x), inplace=True)  # 6 x 28 x 28
         out = F.max_pool2d(out, 2)  # 6 x 14 x 14
         out = F.relu(self.conv2(out), inplace=True)  # 16 x 7 x 7
-        out = F.max_pool2d(out, 2)   # 16 x 5 x 5
+        out = F.max_pool2d(out, 2)  # 16 x 5 x 5
         out = out.view(out.size(0), -1)  # 16 x 5 x 5
         out = F.relu(self.fc1(out), inplace=True)
         out = F.relu(self.fc2(out), inplace=True)
@@ -82,7 +82,9 @@ def generate_resnet(num_classes=10, in_channels=1, model_name="ResNet18"):
         model = models.resnet101(pretrained=True)
     elif model_name == "ResNet152":
         model = models.resnet152(pretrained=True)
-    model.conv1 = nn.Conv2d(in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+    model.conv1 = nn.Conv2d(
+        in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
+    )
     fc_features = model.fc.in_features
     model.fc = nn.Linear(fc_features, num_classes)
 
@@ -123,39 +125,98 @@ class CNN(nn.Module):
     def __init__(self, num_classes=10, in_channels=1):
         super(CNN, self).__init__()
 
-        self.fp_con1 = nn.Sequential(OrderedDict([
-            ('con0', nn.Conv2d(in_channels=in_channels, out_channels=32, kernel_size=3, padding=1)),
-            ('relu0', nn.ReLU(inplace=True)),
-            ]))
+        self.fp_con1 = nn.Sequential(
+            OrderedDict(
+                [
+                    (
+                        "con0",
+                        nn.Conv2d(
+                            in_channels=in_channels,
+                            out_channels=32,
+                            kernel_size=3,
+                            padding=1,
+                        ),
+                    ),
+                    ("relu0", nn.ReLU(inplace=True)),
+                ]
+            )
+        )
 
-        self.ternary_con2 = nn.Sequential(OrderedDict([
-            # Conv Layer block 1
-            ('conv1', nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1, bias=False)),
-            ('norm1', nn.BatchNorm2d(64)),
-            ('relu1', nn.ReLU(inplace=True)),
-            ('pool1', nn.MaxPool2d(kernel_size=2, stride=2)),
+        self.ternary_con2 = nn.Sequential(
+            OrderedDict(
+                [
+                    # Conv Layer block 1
+                    (
+                        "conv1",
+                        nn.Conv2d(
+                            in_channels=32,
+                            out_channels=64,
+                            kernel_size=3,
+                            padding=1,
+                            bias=False,
+                        ),
+                    ),
+                    ("norm1", nn.BatchNorm2d(64)),
+                    ("relu1", nn.ReLU(inplace=True)),
+                    ("pool1", nn.MaxPool2d(kernel_size=2, stride=2)),
+                    # Conv Layer block 2
+                    (
+                        "conv2",
+                        nn.Conv2d(
+                            in_channels=64,
+                            out_channels=128,
+                            kernel_size=3,
+                            padding=1,
+                            bias=False,
+                        ),
+                    ),
+                    ("norm2", nn.BatchNorm2d(128)),
+                    ("relu2", nn.ReLU(inplace=True)),
+                    (
+                        "conv3",
+                        nn.Conv2d(
+                            in_channels=128,
+                            out_channels=128,
+                            kernel_size=3,
+                            padding=1,
+                            bias=False,
+                        ),
+                    ),
+                    ("norm3", nn.BatchNorm2d(128)),
+                    ("relu3", nn.ReLU(inplace=True)),
+                    ("pool2", nn.MaxPool2d(kernel_size=2, stride=2)),
+                    # nn.Dropout2d(p=0.05),
+                    # Conv Layer block 3
+                    (
+                        "conv3",
+                        nn.Conv2d(
+                            in_channels=128,
+                            out_channels=256,
+                            kernel_size=3,
+                            padding=1,
+                            bias=False,
+                        ),
+                    ),
+                    ("norm3", nn.BatchNorm2d(256)),
+                    ("relu3", nn.ReLU(inplace=True)),
+                    (
+                        "conv4",
+                        nn.Conv2d(
+                            in_channels=256,
+                            out_channels=256,
+                            kernel_size=3,
+                            padding=1,
+                            bias=False,
+                        ),
+                    ),
+                    ("norm4", nn.BatchNorm2d(256)),
+                    ("relu4", nn.ReLU(inplace=True)),
+                    ("pool4", nn.MaxPool2d(kernel_size=2, stride=2)),
+                ]
+            )
+        )
 
-            # Conv Layer block 2
-            ('conv2', nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1, bias=False)),
-            ('norm2', nn.BatchNorm2d(128)),
-            ('relu2', nn.ReLU(inplace=True)),
-            ('conv3', nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1, bias=False)),
-            ('norm3', nn.BatchNorm2d(128)),
-            ('relu3', nn.ReLU(inplace=True)),
-            ('pool2', nn.MaxPool2d(kernel_size=2, stride=2)),
-            # nn.Dropout2d(p=0.05),
-
-            # Conv Layer block 3
-            ('conv3', nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, padding=1, bias=False)),
-            ('norm3', nn.BatchNorm2d(256)),
-            ('relu3', nn.ReLU(inplace=True)),
-            ('conv4', nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, padding=1, bias=False)),
-            ('norm4', nn.BatchNorm2d(256)),
-            ('relu4', nn.ReLU(inplace=True)),
-            ('pool4', nn.MaxPool2d(kernel_size=2, stride=2)),
-        ]))
-
-        self.fp_fc = nn.Linear(4096, num_classes, bias = False)
+        self.fp_fc = nn.Linear(4096, num_classes, bias=False)
 
     def forward(self, x):
         x = self.fp_con1(x)
@@ -166,11 +227,35 @@ class CNN(nn.Module):
         return output
 
 
+class LogisticRegressionModel(torch.nn.Module):
+    def __init__(self, X_DIMENSION):
+        super(LogisticRegressionModel, self).__init__()
+        self.linear = torch.nn.Linear(X_DIMENSION, 1)
+
+    def forward(self, x):
+        y_pred = self.linear(x)
+        # y_pred = F.sigmoid(y_pred)
+        return y_pred
+
+
+class ClassificationModel(torch.nn.Module):
+    def __init__(self, X_DIMENSION, Y_DIMENSION):
+        super(ClassificationModel, self).__init__()
+        self.linear = torch.nn.Linear(X_DIMENSION, 20)
+        self.linear2 = torch.nn.Linear(20, Y_DIMENSION)
+
+    def forward(self, x):
+        y_pred = self.linear(x.reshape(-1, 28 * 28))
+        y_pred = F.relu(y_pred)
+        y_pred = self.linear2(y_pred)
+        y_pred = F.softmax(y_pred, dim=1)
+        return y_pred
+
+
 if __name__ == "__main__":
     model_name_list = ["ResNet18", "ResNet34", "ResNet50", "ResNet101", "ResNet152"]
     for model_name in model_name_list:
         model = generate_resnet(num_classes=10, in_channels=1, model_name=model_name)
         model_parameters = filter(lambda p: p.requires_grad, model.parameters())
         param_len = sum([np.prod(p.size()) for p in model_parameters])
-        print('Number of model parameters of %s :' % model_name, ' %d ' % param_len)
-
+        print("Number of model parameters of %s :" % model_name, " %d " % param_len)
