@@ -31,12 +31,21 @@ class FedServer(object):
 
         # Testing on GPU
         gpu = 0
-        self._device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
+        self._device = torch.device(
+            "cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu"
+        )
 
         # Initialize the global machine learning model
-        self._num_class, self._image_dim, self._image_channel = assign_dataset(dataset_id)
+        self._num_class, self._image_dim, self._image_channel = assign_dataset(
+            dataset_id
+        )
         self.model_name = model_name
-        self.model = init_model(model_name=self.model_name, num_class=self._num_class, image_channel=self._image_channel)
+        self.model = init_model(
+            model_name=self.model_name,
+            num_class=self._num_class,
+            image_channel=self._image_channel,
+        )
+        self.model = self.model.to(self._device)
 
     def load_testset(self, testset):
         """
@@ -56,7 +65,9 @@ class FedServer(object):
         """
         Server tests the model on test dataset.
         """
-        test_loader = DataLoader(self.testset, batch_size=self._batch_size, shuffle=True)
+        test_loader = DataLoader(
+            self.testset, batch_size=self._batch_size, shuffle=True
+        )
         self.model.to(self._device)
         accuracy_collector = 0
         for step, (x, y) in enumerate(test_loader):
@@ -97,7 +108,11 @@ class FedServer(object):
             return self.model.state_dict(), 0, 0
 
         # Initialize a model for aggregation
-        model = init_model(model_name=self.model_name, num_class=self._num_class, image_channel=self._image_channel)
+        model = init_model(
+            model_name=self.model_name,
+            num_class=self._num_class,
+            image_channel=self._image_channel,
+        )
         model_state = model.state_dict()
         avg_loss = 0
 
@@ -107,12 +122,23 @@ class FedServer(object):
                 continue
             for key in self.client_state[name]:
                 if i == 0:
-                    model_state[key] = self.client_state[name][key] * self.client_n_data[name] / self.n_data
+                    model_state[key] = (
+                        self.client_state[name][key]
+                        * self.client_n_data[name]
+                        / self.n_data
+                    )
                 else:
-                    model_state[key] = model_state[key] + self.client_state[name][key] * self.client_n_data[
-                        name] / self.n_data
+                    model_state[key] = (
+                        model_state[key]
+                        + self.client_state[name][key]
+                        * self.client_n_data[name]
+                        / self.n_data
+                    )
 
-            avg_loss = avg_loss + self.client_loss[name] * self.client_n_data[name] / self.n_data
+            avg_loss = (
+                avg_loss
+                + self.client_loss[name] * self.client_n_data[name] / self.n_data
+            )
 
         # Server load the aggregated model as the global model
         self.model.load_state_dict(model_state)

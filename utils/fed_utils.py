@@ -98,8 +98,6 @@ def init_model(model_name, num_class, image_channel):
         )
     elif model_name == "AlexCifarNet":
         model = AlexCifarNet()
-    elif model_name == "LR":
-        model = LogisticRegressionModel(X_DIMENSION=image_channel)
     elif model_name == "Linear":
         model = ClassificationModel(X_DIMENSION=28 * 28, Y_DIMENSION=num_class)
     else:

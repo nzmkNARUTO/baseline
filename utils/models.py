@@ -227,17 +227,6 @@ class CNN(nn.Module):
         return output
 
 
-class LogisticRegressionModel(torch.nn.Module):
-    def __init__(self, X_DIMENSION):
-        super(LogisticRegressionModel, self).__init__()
-        self.linear = torch.nn.Linear(X_DIMENSION, 1)
-
-    def forward(self, x):
-        y_pred = self.linear(x)
-        # y_pred = F.sigmoid(y_pred)
-        return y_pred
-
-
 class ClassificationModel(torch.nn.Module):
     def __init__(self, X_DIMENSION, Y_DIMENSION):
         super(ClassificationModel, self).__init__()
