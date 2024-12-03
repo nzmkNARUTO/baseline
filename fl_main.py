@@ -12,6 +12,7 @@ from fed_baselines.client_base import FedClient
 from fed_baselines.client_fedprox import FedProxClient
 from fed_baselines.client_scaffold import ScaffoldClient
 from fed_baselines.client_fednova import FedNovaClient
+from fed_baselines.client_fedtest import FedTestClient
 from fed_baselines.server_base import FedServer
 from fed_baselines.server_scaffold import ScaffoldServer
 from fed_baselines.server_fednova import FedNovaServer
@@ -91,7 +92,7 @@ def fed_run():
     client_dict = {}
     recorder = Recorder()
 
-    trainset_config, testset = divide_data(
+    trainset_config, testset, len_class = divide_data(
         num_client=config["system"]["num_client"],
         num_local_class=config["system"]["num_local_class"],
         dataset_name=config["system"]["dataset"],
@@ -129,7 +130,7 @@ def fed_run():
                 model_name=config["system"]["model"],
             )
         elif config["client"]["fed_algo"] == "FedTest":
-            client_dict[client_id] = FedClient(
+            client_dict[client_id] = FedTestClient(
                 client_id,
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
@@ -168,6 +169,8 @@ def fed_run():
             trainset_config["users"],
             dataset_id=config["system"]["dataset"],
             model_name=config["system"]["model"],
+            len_class=len_class,
+            num_round=config["system"]["num_round"],
         )
     fed_server.load_testset(testset)
     global_state_dict = fed_server.state_dict()
@@ -214,7 +217,14 @@ def fed_run():
             elif config["client"]["fed_algo"] == "FedTest":
                 client_dict[client_id].update(global_state_dict)
                 state_dict, n_data, loss = client_dict[client_id].train()
-                fed_server.rec(client_dict[client_id].name, state_dict, n_data, loss)
+                fed_server.rec(
+                    client_dict[client_id].name,
+                    state_dict,
+                    n_data,
+                    loss,
+                    client_id,
+                    client_dict[client_id].get_data_distribution(),
+                )
 
         # Global aggregation
         fed_server.select_clients()
