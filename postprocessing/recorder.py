@@ -11,20 +11,22 @@ class PythonObjectEncoder(JSONEncoder):
     def default(self, obj):
         if isinstance(obj, json_types):
             return super().default(self, obj)
-        return {'_python_object': pickle.dumps(obj).decode('latin-1')}
+        return {"_python_object": pickle.dumps(obj).decode("latin-1")}
 
 
 def as_python_object(dct):
-    if '_python_object' in dct:
-        return pickle.loads(dct['_python_object'].encode('latin-1'))
+    if "_python_object" in dct:
+        return pickle.loads(dct["_python_object"].encode("latin-1"))
     return dct
 
 
 class Recorder(object):
     def __init__(self):
         self.res_list = []
-        self.res = {'server': {'iid_accuracy': [], 'train_loss': []},
-                    'clients': {'iid_accuracy': [], 'train_loss': []}}
+        self.res = {
+            "server": {"iid_accuracy": [], "train_loss": []},
+            "clients": {"iid_accuracy": [], "train_loss": []},
+        }
 
     def load(self, filename, label):
         """
@@ -42,17 +44,22 @@ class Recorder(object):
         """
         fig, axes = plt.subplots(2)
         for i, (res, label) in enumerate(self.res_list):
-            axes[0].plot(np.array(res['server']['iid_accuracy']), label=label, alpha=1, linewidth=2)
-            axes[1].plot(np.array(res['server']['train_loss']), label=label, alpha=1, linewidth=2)
+            axes[0].plot(
+                np.array(res["server"]["iid_accuracy"]),
+                label=label,
+                alpha=1,
+                linewidth=2,
+            )
+            axes[1].plot(
+                np.array(res["server"]["train_loss"]), label=label, alpha=1, linewidth=2
+            )
 
         for i, ax in enumerate(axes):
-            ax.set_xlabel('# of Epochs', size=12)
+            ax.set_xlabel("# of Epochs", size=6)
             if i == 0:
-                ax.set_ylabel('Testing Accuracy', size=12)
+                ax.set_ylabel("Testing Accuracy", size=6)
             if i == 1:
-                ax.set_ylabel('Training Loss', size=12)
-            ax.legend(prop={'size': 12})
-            ax.tick_params(axis='both', labelsize=12)
+                ax.set_ylabel("Training Loss", size=6)
+            ax.legend(prop={"size": 6})
+            ax.tick_params(axis="both", labelsize=6)
             ax.grid()
-
-
