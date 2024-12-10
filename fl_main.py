@@ -85,6 +85,11 @@ def fed_run():
     ]
     assert config["system"]["model"] in model_list, "The model is not supported"
 
+    divide_method = ["IID", "DropClass", "Dirichlet"]
+    assert (
+        config["system"]["divide_method"] in divide_method
+    ), "The divide method is not supported"
+
     np.random.seed(config["system"]["i_seed"])
     torch.manual_seed(config["system"]["i_seed"])
     random.seed(config["system"]["i_seed"])
@@ -92,9 +97,20 @@ def fed_run():
     client_dict = {}
     recorder = Recorder()
 
+    if config["system"]["divide_method"] == "DropClass":
+        assert config["system"][
+            "num_local_class"
+        ], "The number of local classes is not specified"
+        divide_config = {"num_local_class": config["system"]["num_local_class"]}
+    elif config["system"]["divide_method"] == "IID":
+        divide_config = None
+    elif config["system"]["divide_method"] == "Dirichlet":
+        divide_config = {"alpha": config["system"]["alpha"]}
+
     trainset_config, testset, len_class = divide_data(
         num_client=config["system"]["num_client"],
-        num_local_class=config["system"]["num_local_class"],
+        divide_method=config["system"]["divide_method"],
+        divide_config=divide_config,
         dataset_name=config["system"]["dataset"],
         i_seed=config["system"]["i_seed"],
     )
