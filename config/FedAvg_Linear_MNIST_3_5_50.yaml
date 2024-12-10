@@ -3,6 +3,8 @@ system:
   num_local_class: 5
   dataset: "MNIST"
   model: "Linear"
+  divide_method: "Dirichlet"
+  alpha: 0.2
   i_seed: 235235
   num_round: 50
   res_root: "results"
