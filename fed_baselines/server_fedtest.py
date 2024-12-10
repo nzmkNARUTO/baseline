@@ -2,6 +2,7 @@ from fed_baselines.server_base import FedServer
 from utils.models import *
 import torch
 import math
+import copy
 from torch.utils.data import DataLoader, random_split
 from utils.fed_utils import assign_dataset, init_model
 
@@ -11,7 +12,7 @@ class FedTestServer(FedServer):
         super().__init__(client_list, dataset_id, model_name)
         self.len_class = len_class
         self.num_round = num_round
-        self.ratios = np.linspace(0.9, 0.1, num_round)
+        self.ratios = np.linspace(1, 1, num_round)
         self.all_clients_data_distribution = {}
         self.selected_clients_data_distribution = {}
 
@@ -51,10 +52,12 @@ class FedTestServer(FedServer):
         sensitivities = {}
         mask = {}
         loss_func = nn.CrossEntropyLoss().to(self._device)
-        dataloader = DataLoader(
-            self.analysisset, batch_size=len(self.analysisset.indices), shuffle=True
-        )
         for i in range(self.len_class):
+            dataloader = DataLoader(
+                self.analysisset,
+                batch_size=len(self.analysisset.indices),
+                shuffle=False,
+            )
             sensitivity = {}
             for data, target in dataloader:
                 data = data.to(self._device)
@@ -68,8 +71,8 @@ class FedTestServer(FedServer):
                 loss.backward()
             for name, param in self.model.named_parameters():
                 sensitivity.update({name: param.grad})
-            sensitivities[i] = sensitivity
-            mask[i] = self.mask(sensitivity, self.ratios[self.round])
+            sensitivities[i] = copy.deepcopy(sensitivity)
+            # mask[i] = self.mask(sensitivity, self.ratios[self.round])
 
         # calculate the gradient
         delta_state = {}
@@ -83,12 +86,21 @@ class FedTestServer(FedServer):
 
         # reweight the gradient
         for name in self.selected_clients:
+            mask = {}
+            for i in range(self.len_class):
+                ratio = self.selected_clients_data_distribution[name][i] / 2 + 0.5
+                # ratio = 1
+                mask[i] = self.mask(sensitivities[i], self.toOne(ratio))
             for key in delta_state[name]:
                 delta_state[name][key] = sum(
-                    delta_state[name][key]
-                    * mask[i][key]
-                    * self.toUniform(self.selected_clients_data_distribution[name][i])
-                    for i in range(self.len_class)
+                    [
+                        delta_state[name][key]
+                        * mask[i][key]
+                        * self.toUniform(
+                            self.selected_clients_data_distribution[name][i]
+                        )
+                        for i in range(self.len_class)
+                    ]
                 )
 
         # Aggregate the local updated models from selected clients
@@ -142,11 +154,15 @@ class FedTestServer(FedServer):
         return mask
 
     def toUniform(self, data_distribution):
+        # return data_distribution
         average = 1 / self._num_class
         return (
             data_distribution
             + (average - data_distribution) / self.num_round * self.round
         )
+
+    def toOne(self, data_distribution):
+        return data_distribution + (1 - data_distribution) / self.num_round * self.round
 
     def rec(self, name, state_dict, n_data, loss, client_id, client_data_distribution):
         """
