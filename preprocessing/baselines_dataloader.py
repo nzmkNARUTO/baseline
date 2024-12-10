@@ -4,6 +4,7 @@ import torchvision.transforms as transforms
 from tqdm import tqdm
 from torch.utils.data import Subset, DataLoader
 from collections import Counter
+from torch.distributions import Dirichlet
 import os
 import PIL
 
@@ -197,7 +198,8 @@ def load_data(name, root="./data", download=True, save_pre_data=True):
 
 def divide_data(
     num_client=1,
-    divide_method="DropClass",
+    divide_method="IID",
+    divide_config={},
     num_local_class=10,
     dataset_name="emnist",
     i_seed=0,
@@ -210,24 +212,22 @@ def divide_data(
     )
 
     num_classes = len_classes
-    if num_local_class == -1:
-        num_local_class = num_classes
     trainset_config = {
         "users": [],
         "user_data": {},
         "num_samples": [],
     }
+    config_division = {}  # Count of the classes for division
+    config_class = {}  # Configuration of class distribution in clients
+    config_data = (
+        {}
+    )  # Configuration of data indexes for each class : Config_data[cls] = [0, []] | pointer and indexes
 
     if divide_method == "DropClass":
+        num_local_class = divide_config["num_local_class"]
         assert (
             0 < num_local_class <= num_classes
         ), "number of local class should smaller than global number of class"
-
-        config_division = {}  # Count of the classes for division
-        config_class = {}  # Configuration of class distribution in clients
-        config_data = (
-            {}
-        )  # Configuration of data indexes for each class : Config_data[cls] = [0, []] | pointer and indexes
 
         for i in range(num_client):
             config_class["f_{0:05d}".format(i)] = []
@@ -260,26 +260,107 @@ def divide_data(
                             * num_partition
                         ]
                     )
+        for user in tqdm(config_class.keys()):
+            user_data_indexes = torch.tensor([])
+            for cls in config_class[user]:
+                user_data_index = config_data[cls][1][config_data[cls][0]]
+                user_data_indexes = torch.cat((user_data_indexes, user_data_index))
+                config_data[cls][0] += 1
+            user_data_indexes = user_data_indexes.squeeze().int().tolist()
+            user_data = Subset(trainset, user_data_indexes)
+            # user_targets = trainset.target[user_data_indexes.tolist()]
+            trainset_config["users"].append(user)
+            trainset_config["user_data"][user] = user_data
+            trainset_config["num_samples"] = len(user_data)
+            # for _, target in DataLoader(user_data, batch_size=len(user_data)):
+            #     trainset_config["distribution"][user] = Counter(target.numpy())
+        #
+        # test_loader = DataLoader(trainset_config['user_data']['f_00001'])
+        # for i, (x,y) in enumerate(test_loader):
+        #     print(i)
+        #     print(y)
+    elif divide_method == "IID":
+        num_local_class = num_classes
+        assert (
+            0 < num_local_class <= num_classes
+        ), "number of local class should smaller than global number of class"
 
-    for user in tqdm(config_class.keys()):
-        user_data_indexes = torch.tensor([])
-        for cls in config_class[user]:
-            user_data_index = config_data[cls][1][config_data[cls][0]]
-            user_data_indexes = torch.cat((user_data_indexes, user_data_index))
-            config_data[cls][0] += 1
-        user_data_indexes = user_data_indexes.squeeze().int().tolist()
-        user_data = Subset(trainset, user_data_indexes)
-        # user_targets = trainset.target[user_data_indexes.tolist()]
-        trainset_config["users"].append(user)
-        trainset_config["user_data"][user] = user_data
-        trainset_config["num_samples"] = len(user_data)
-        # for _, target in DataLoader(user_data, batch_size=len(user_data)):
-        #     trainset_config["distribution"][user] = Counter(target.numpy())
-    #
-    # test_loader = DataLoader(trainset_config['user_data']['f_00001'])
-    # for i, (x,y) in enumerate(test_loader):
-    #     print(i)
-    #     print(y)
+        for i in range(num_client):
+            config_class["f_{0:05d}".format(i)] = []
+            for j in range(num_local_class):
+                cls = (i + j) % num_classes
+                if cls not in config_division:
+                    config_division[cls] = 1
+                    config_data[cls] = [0, []]
+
+                else:
+                    config_division[cls] += 1
+                config_class["f_{0:05d}".format(i)].append(cls)
+        # print(config_class)
+        # print(config_division)
+
+        for cls in config_division.keys():
+            indexes = torch.nonzero(trainset.targets == cls)
+            num_datapoint = indexes.shape[0]
+            indexes = indexes[torch.randperm(num_datapoint)]
+            num_partition = num_datapoint // config_division[cls]
+            for i_partition in range(config_division[cls]):
+                if i_partition == config_division[cls] - 1:
+                    config_data[cls][1].append(indexes[i_partition * num_partition :])
+                else:
+                    config_data[cls][1].append(
+                        indexes[
+                            i_partition
+                            * num_partition : (i_partition + 1)
+                            * num_partition
+                        ]
+                    )
+        for user in tqdm(config_class.keys()):
+            user_data_indexes = torch.tensor([])
+            for cls in config_class[user]:
+                user_data_index = config_data[cls][1][config_data[cls][0]]
+                user_data_indexes = torch.cat((user_data_indexes, user_data_index))
+                config_data[cls][0] += 1
+            user_data_indexes = user_data_indexes.squeeze().int().tolist()
+            user_data = Subset(trainset, user_data_indexes)
+            # user_targets = trainset.target[user_data_indexes.tolist()]
+            trainset_config["users"].append(user)
+            trainset_config["user_data"][user] = user_data
+            trainset_config["num_samples"] = len(user_data)
+            # for _, target in DataLoader(user_data, batch_size=len(user_data)):
+            #     trainset_config["distribution"][user] = Counter(target.numpy())
+        #
+        # test_loader = DataLoader(trainset_config['user_data']['f_00001'])
+        # for i, (x,y) in enumerate(test_loader):
+        #     print(i)
+        #     print(y)
+    elif divide_method == "Dirichlet":
+        alpha = divide_config["alpha"]
+        for i in range(num_client):
+            trainset_config["users"].append("f_{0:05d}".format(i))
+
+        label_distribution = Dirichlet(
+            torch.full((num_client,), alpha, dtype=torch.float32)
+        ).sample((num_client,))
+        class_idcs = [
+            torch.nonzero(trainset.targets == y).flatten() for y in range(num_classes)
+        ]
+        client_idcs = [[] for _ in range(num_client)]
+        for c, fracs in zip(class_idcs, label_distribution):
+            total_size = len(c)
+            splits = (fracs * total_size).int()
+            splits[-1] = total_size - splits[:-1].sum()
+            idcs = torch.split(c, splits.tolist())
+            for i, idx in enumerate(idcs):
+                client_idcs[i] += [idx]
+        client_idcs = [torch.cat(idcs) for idcs in client_idcs]
+        for i, user in enumerate(trainset_config["users"]):
+            user_data = Subset(trainset, client_idcs[i])
+            trainset_config["user_data"][user] = user_data
+            trainset_config["num_samples"] = len(user_data)
+        pass
+    else:
+        raise ValueError("Invalid divide method")
 
     return trainset_config, testset, len_classes
 
