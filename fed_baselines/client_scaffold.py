@@ -70,15 +70,15 @@ class ScaffoldClient(FedClient):
                     cnt += 1
                     epoch_loss_collector.append(loss.item())
 
-        delta_model_state = copy.deepcopy(self.model.state_dict())
+        # delta_model_state = copy.deepcopy(self.model.state_dict())
 
         new_ccv_state = copy.deepcopy(self.ccv.state_dict())
-        delta_ccv_state = copy.deepcopy(new_ccv_state)
+        # delta_ccv_state = copy.deepcopy(new_ccv_state)
         state_dict = self.model.state_dict()
         for key in state_dict:
             new_ccv_state[key] = ccv_state[key] - scv_state[key] + (global_state_dict[key] - state_dict[key]) / (cnt * self._lr)
-            delta_ccv_state[key] = new_ccv_state[key] - ccv_state[key]
-            delta_model_state[key] = state_dict[key] - global_state_dict[key]
+            # delta_ccv_state[key] = new_ccv_state[key] - ccv_state[key]
+            # delta_model_state[key] = state_dict[key] - global_state_dict[key]
 
         self.ccv.load_state_dict(new_ccv_state)
 
