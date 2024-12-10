@@ -1,6 +1,6 @@
 system:
-  num_client: 2
-  num_local_class: 5
+  num_client: 5
+  num_local_class: 7
   dataset: "MNIST"
   model: "Linear"
   i_seed: 235235
