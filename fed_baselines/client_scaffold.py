@@ -10,9 +10,17 @@ class ScaffoldClient(FedClient):
     def __init__(self, name, epoch, dataset_id, model_name):
         super().__init__(name, epoch, dataset_id, model_name)
         # server control variate
-        self.scv = init_model(model_name=self.model_name, num_class=self._num_class, image_channel=self._image_channel)
+        self.scv = init_model(
+            model_name=self.model_name,
+            num_class=self._num_class,
+            image_channel=self._image_channel,
+        )
         # client control variate
-        self.ccv = init_model(model_name=self.model_name, num_class=self._num_class, image_channel=self._image_channel)
+        self.ccv = init_model(
+            model_name=self.model_name,
+            num_class=self._num_class,
+            image_channel=self._image_channel,
+        )
 
     def update(self, model_state_dict, scv_state):
         """
@@ -20,9 +28,17 @@ class ScaffoldClient(FedClient):
         :param model_state_dict:
         :param scv_state:
         """
-        self.model = init_model(model_name=self.model_name, num_class=self._num_class, image_channel=self._image_channel)
+        self.model = init_model(
+            model_name=self.model_name,
+            num_class=self._num_class,
+            image_channel=self._image_channel,
+        )
         self.model.load_state_dict(model_state_dict)
-        self.scv = init_model(model_name=self.model_name, num_class=self._num_class, image_channel=self._image_channel)
+        self.scv = init_model(
+            model_name=self.model_name,
+            num_class=self._num_class,
+            image_channel=self._image_channel,
+        )
         self.scv.load_state_dict(scv_state)
 
     def train(self):
@@ -30,7 +46,9 @@ class ScaffoldClient(FedClient):
         Client trains the model on local dataset using SCAFFOLD
         :return: Local updated model, number of local data points, training loss, updated client control variate
         """
-        train_loader = DataLoader(self.trainset, batch_size=self._batch_size, shuffle=True)
+        train_loader = DataLoader(
+            self.trainset, batch_size=self._batch_size, shuffle=True
+        )
 
         self.model.to(self._device)
         self.ccv.to(self._device)
@@ -40,7 +58,9 @@ class ScaffoldClient(FedClient):
         ccv_state = self.ccv.state_dict()
         cnt = 0
 
-        optimizer = torch.optim.SGD(self.model.parameters(), lr=self._lr, momentum=self._momentum)
+        optimizer = torch.optim.SGD(
+            self.model.parameters(), lr=self._lr, momentum=self._momentum
+        )
         # optimizer = torch.optim.Adam(self.model.parameters(), lr=self._lr, weight_decay=1e-4)
         loss_func = nn.CrossEntropyLoss()
 
@@ -64,7 +84,9 @@ class ScaffoldClient(FedClient):
 
                     state_dict = self.model.state_dict()
                     for key in state_dict:
-                        state_dict[key] = state_dict[key] - self._lr * (scv_state[key] - ccv_state[key])
+                        state_dict[key] = state_dict[key] - self._lr * (
+                            scv_state[key] - ccv_state[key]
+                        )
                     self.model.load_state_dict(state_dict)
 
                     cnt += 1
@@ -76,7 +98,11 @@ class ScaffoldClient(FedClient):
         # delta_ccv_state = copy.deepcopy(new_ccv_state)
         state_dict = self.model.state_dict()
         for key in state_dict:
-            new_ccv_state[key] = ccv_state[key] - scv_state[key] + (global_state_dict[key] - state_dict[key]) / (cnt * self._lr)
+            new_ccv_state[key] = (
+                ccv_state[key]
+                - scv_state[key]
+                + (global_state_dict[key] - state_dict[key]) / (cnt * self._lr)
+            )
             # delta_ccv_state[key] = new_ccv_state[key] - ccv_state[key]
             # delta_model_state[key] = state_dict[key] - global_state_dict[key]
 
