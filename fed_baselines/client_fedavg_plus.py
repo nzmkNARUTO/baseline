@@ -6,7 +6,7 @@ from utils.models import *
 from torch.utils.data import DataLoader
 
 
-class FedTestClient(FedClient):
+class FedAvgPlusClient(FedClient):
     def __init__(self, name, epoch, dataset_id, model_name):
         super().__init__(name, epoch, dataset_id, model_name)
 
@@ -17,8 +17,9 @@ class FedTestClient(FedClient):
         """
         self.trainset = trainset
         self.n_data = len(trainset)
-        for _, target in DataLoader(self.trainset, batch_size=self.n_data):
-            self.V = Counter(target.numpy())
+        labels = [int(trainset.dataset.targets[i]) for i in trainset.indices]
+        self.V = Counter(labels)
+        pass
 
     def get_data_distribution(self):
         return dict(self.V)

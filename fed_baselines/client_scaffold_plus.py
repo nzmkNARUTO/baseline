@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from utils.fed_utils import init_model
 
 
-class ScaffoldClient(FedClient):
+class ScaffoldPlusClient(FedClient):
     def __init__(self, name, epoch, dataset_id, model_name):
         super().__init__(name, epoch, dataset_id, model_name)
         # server control variate
@@ -21,6 +21,20 @@ class ScaffoldClient(FedClient):
             num_class=self._num_class,
             image_channel=self._image_channel,
         )
+
+    def load_trainset(self, trainset):
+        """
+        Client loads the training dataset.
+        :param trainset: Dataset for training.
+        """
+        self.trainset = trainset
+        self.n_data = len(trainset)
+        labels = [int(trainset.dataset.targets[i]) for i in trainset.indices]
+        self.V = Counter(labels)
+        pass
+
+    def get_data_distribution(self):
+        return dict(self.V)
 
     def update(self, model_state_dict, scv_state):
         """
