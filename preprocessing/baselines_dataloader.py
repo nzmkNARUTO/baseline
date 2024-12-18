@@ -341,7 +341,7 @@ def divide_data(
 
         label_distribution = Dirichlet(
             torch.full((num_client,), alpha, dtype=torch.float32)
-        ).sample((num_client,))
+        ).sample((num_classes,))
         class_idcs = [
             torch.nonzero(trainset.targets == y).flatten() for y in range(num_classes)
         ]
