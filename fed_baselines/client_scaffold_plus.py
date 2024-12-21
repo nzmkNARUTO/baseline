@@ -14,12 +14,14 @@ class ScaffoldPlusClient(FedClient):
             model_name=self.model_name,
             num_class=self._num_class,
             image_channel=self._image_channel,
+            image_dim=self._image_dim,
         )
         # client control variate
         self.ccv = init_model(
             model_name=self.model_name,
             num_class=self._num_class,
             image_channel=self._image_channel,
+            image_dim=self._image_dim,
         )
 
     def load_trainset(self, trainset):
@@ -46,12 +48,14 @@ class ScaffoldPlusClient(FedClient):
             model_name=self.model_name,
             num_class=self._num_class,
             image_channel=self._image_channel,
+            image_dim=self._image_dim,
         )
         self.model.load_state_dict(model_state_dict)
         self.scv = init_model(
             model_name=self.model_name,
             num_class=self._num_class,
             image_channel=self._image_channel,
+            image_dim=self._image_dim,
         )
         self.scv.load_state_dict(scv_state)
 

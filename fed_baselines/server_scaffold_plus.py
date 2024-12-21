@@ -17,6 +17,7 @@ class ScaffoldPlusServer(FedServer):
             model_name=self.model_name,
             num_class=self._num_class,
             image_channel=self._image_channel,
+            image_dim=self._image_dim,
         )
         # Dict of all client control variates
         self.client_ccv_state = {}
