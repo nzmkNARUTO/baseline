@@ -13,11 +13,14 @@ from fed_baselines.client_fedprox import FedProxClient
 from fed_baselines.client_scaffold import ScaffoldClient
 from fed_baselines.client_fednova import FedNovaClient
 from fed_baselines.client_fedavg_plus import FedAvgPlusClient
+from fed_baselines.client_fedprox_plus import FedProxPlusClient
+from fed_baselines.client_fednova_plus import FedNovaPlusClient
 from fed_baselines.client_scaffold_plus import ScaffoldPlusClient
 from fed_baselines.server_base import FedServer
 from fed_baselines.server_scaffold import ScaffoldServer
 from fed_baselines.server_fednova import FedNovaServer
 from fed_baselines.server_fedavg_plus import FedAvgPlusServer
+from fed_baselines.server_fednova_plus import FedNovaPlusServer
 from fed_baselines.server_scaffold_plus import ScaffoldPlusServer
 
 from postprocessing.recorder import Recorder
@@ -68,11 +71,13 @@ def fed_run():
 
     algo_list = [
         "FedAvg",
-        "SCAFFOLD",
-        "FedProx",
-        "FedNova",
         "FedAvg_Plus",
+        "SCAFFOLD",
         "SCAFFOLD_PLUS",
+        "FedProx",
+        "FedProx_Plus",
+        "FedNova",
+        "FedNova_Plus",
     ]
     assert (
         config["client"]["fed_algo"] in algo_list
@@ -133,8 +138,22 @@ def fed_run():
                 epoch=config["client"]["num_local_epoch"],
                 model_name=config["system"]["model"],
             )
+        elif config["client"]["fed_algo"] == "FedAvg_Plus":
+            client_dict[client_id] = FedAvgPlusClient(
+                client_id,
+                dataset_id=config["system"]["dataset"],
+                epoch=config["client"]["num_local_epoch"],
+                model_name=config["system"]["model"],
+            )
         elif config["client"]["fed_algo"] == "SCAFFOLD":
             client_dict[client_id] = ScaffoldClient(
+                client_id,
+                dataset_id=config["system"]["dataset"],
+                epoch=config["client"]["num_local_epoch"],
+                model_name=config["system"]["model"],
+            )
+        elif config["client"]["fed_algo"] == "SCAFFOLD_PLUS":
+            client_dict[client_id] = ScaffoldPlusClient(
                 client_id,
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
@@ -147,6 +166,13 @@ def fed_run():
                 epoch=config["client"]["num_local_epoch"],
                 model_name=config["system"]["model"],
             )
+        elif config["client"]["fed_algo"] == "FedProx_Plus":
+            client_dict[client_id] = FedProxPlusClient(
+                client_id,
+                dataset_id=config["system"]["dataset"],
+                epoch=config["client"]["num_local_epoch"],
+                model_name=config["system"]["model"],
+            )
         elif config["client"]["fed_algo"] == "FedNova":
             client_dict[client_id] = FedNovaClient(
                 client_id,
@@ -154,15 +180,8 @@ def fed_run():
                 epoch=config["client"]["num_local_epoch"],
                 model_name=config["system"]["model"],
             )
-        elif config["client"]["fed_algo"] == "FedAvg_Plus":
-            client_dict[client_id] = FedAvgPlusClient(
-                client_id,
-                dataset_id=config["system"]["dataset"],
-                epoch=config["client"]["num_local_epoch"],
-                model_name=config["system"]["model"],
-            )
-        elif config["client"]["fed_algo"] == "SCAFFOLD_PLUS":
-            client_dict[client_id] = ScaffoldPlusClient(
+        elif config["client"]["fed_algo"] == "FedNova_Plus":
+            client_dict[client_id] = FedNovaPlusClient(
                 client_id,
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
@@ -177,11 +196,30 @@ def fed_run():
             dataset_id=config["system"]["dataset"],
             model_name=config["system"]["model"],
         )
+    elif config["client"]["fed_algo"] == "FedAvg_Plus":
+        fed_server = FedAvgPlusServer(
+            trainset_config["users"],
+            dataset_id=config["system"]["dataset"],
+            model_name=config["system"]["model"],
+            len_class=len_class,
+            num_round=config["system"]["num_round"],
+            x=config["system"]["x"],
+        )
     elif config["client"]["fed_algo"] == "SCAFFOLD":
         fed_server = ScaffoldServer(
             trainset_config["users"],
             dataset_id=config["system"]["dataset"],
             model_name=config["system"]["model"],
+        )
+        scv_state = fed_server.scv.state_dict()
+    elif config["client"]["fed_algo"] == "SCAFFOLD_PLUS":
+        fed_server = ScaffoldPlusServer(
+            trainset_config["users"],
+            dataset_id=config["system"]["dataset"],
+            model_name=config["system"]["model"],
+            len_class=len_class,
+            num_round=config["system"]["num_round"],
+            x=config["system"]["x"],
         )
         scv_state = fed_server.scv.state_dict()
     elif config["client"]["fed_algo"] == "FedProx":
@@ -190,29 +228,30 @@ def fed_run():
             dataset_id=config["system"]["dataset"],
             model_name=config["system"]["model"],
         )
-    elif config["client"]["fed_algo"] == "FedNova":
-        fed_server = FedNovaServer(
-            trainset_config["users"],
-            dataset_id=config["system"]["dataset"],
-            model_name=config["system"]["model"],
-        )
-    elif config["client"]["fed_algo"] == "FedAvg_Plus":
+    elif config["client"]["fed_algo"] == "FedProx_Plus":
         fed_server = FedAvgPlusServer(
             trainset_config["users"],
             dataset_id=config["system"]["dataset"],
             model_name=config["system"]["model"],
             len_class=len_class,
             num_round=config["system"]["num_round"],
+            x=config["system"]["x"],
         )
-    elif config["client"]["fed_algo"] == "SCAFFOLD_PLUS":
-        fed_server = ScaffoldPlusServer(
+    elif config["client"]["fed_algo"] == "FedNova":
+        fed_server = FedNovaServer(
+            trainset_config["users"],
+            dataset_id=config["system"]["dataset"],
+            model_name=config["system"]["model"],
+        )
+    elif config["client"]["fed_algo"] == "FedNova_Plus":
+        fed_server = FedNovaPlusServer(
             trainset_config["users"],
             dataset_id=config["system"]["dataset"],
             model_name=config["system"]["model"],
             len_class=len_class,
             num_round=config["system"]["num_round"],
+            x=config["system"]["x"],
         )
-        scv_state = fed_server.scv.state_dict()
     fed_server.load_testset(testset)
     global_state_dict = fed_server.state_dict()
 
@@ -226,6 +265,17 @@ def fed_run():
                 client_dict[client_id].update(global_state_dict)
                 state_dict, n_data, loss = client_dict[client_id].train()
                 fed_server.rec(client_dict[client_id].name, state_dict, n_data, loss)
+            elif config["client"]["fed_algo"] == "FedAvg_Plus":
+                client_dict[client_id].update(global_state_dict)
+                state_dict, n_data, loss = client_dict[client_id].train()
+                fed_server.rec(
+                    client_dict[client_id].name,
+                    state_dict,
+                    n_data,
+                    loss,
+                    client_id,
+                    client_dict[client_id].get_data_distribution(),
+                )
             elif config["client"]["fed_algo"] == "SCAFFOLD":
                 client_dict[client_id].update(global_state_dict, scv_state)
                 state_dict, n_data, loss, delta_ccv_state = client_dict[
@@ -237,34 +287,6 @@ def fed_run():
                     n_data,
                     loss,
                     delta_ccv_state,
-                )
-            elif config["client"]["fed_algo"] == "FedProx":
-                client_dict[client_id].update(global_state_dict)
-                state_dict, n_data, loss = client_dict[client_id].train()
-                fed_server.rec(client_dict[client_id].name, state_dict, n_data, loss)
-            elif config["client"]["fed_algo"] == "FedNova":
-                client_dict[client_id].update(global_state_dict)
-                state_dict, n_data, loss, coeff, norm_grad = client_dict[
-                    client_id
-                ].train()
-                fed_server.rec(
-                    client_dict[client_id].name,
-                    state_dict,
-                    n_data,
-                    loss,
-                    coeff,
-                    norm_grad,
-                )
-            elif config["client"]["fed_algo"] == "FedAvg_Plus":
-                client_dict[client_id].update(global_state_dict)
-                state_dict, n_data, loss = client_dict[client_id].train()
-                fed_server.rec(
-                    client_dict[client_id].name,
-                    state_dict,
-                    n_data,
-                    loss,
-                    client_id,
-                    client_dict[client_id].get_data_distribution(),
                 )
             elif config["client"]["fed_algo"] == "SCAFFOLD_PLUS":
                 client_dict[client_id].update(global_state_dict, scv_state)
@@ -280,21 +302,68 @@ def fed_run():
                     client_id,
                     client_dict[client_id].get_data_distribution(),
                 )
+            elif config["client"]["fed_algo"] == "FedProx":
+                client_dict[client_id].update(global_state_dict)
+                state_dict, n_data, loss = client_dict[client_id].train()
+                fed_server.rec(client_dict[client_id].name, state_dict, n_data, loss)
+            elif config["client"]["fed_algo"] == "FedProx_Plus":
+                client_dict[client_id].update(global_state_dict)
+                state_dict, n_data, loss = client_dict[client_id].train()
+                fed_server.rec(
+                    client_dict[client_id].name,
+                    state_dict,
+                    n_data,
+                    loss,
+                    client_id,
+                    client_dict[client_id].get_data_distribution(),
+                )
+            elif config["client"]["fed_algo"] == "FedNova":
+                client_dict[client_id].update(global_state_dict)
+                state_dict, n_data, loss, coeff, norm_grad = client_dict[
+                    client_id
+                ].train()
+                fed_server.rec(
+                    client_dict[client_id].name,
+                    state_dict,
+                    n_data,
+                    loss,
+                    coeff,
+                    norm_grad,
+                )
+            elif config["client"]["fed_algo"] == "FedNova_Plus":
+                client_dict[client_id].update(global_state_dict)
+                state_dict, n_data, loss, coeff, norm_grad = client_dict[
+                    client_id
+                ].train()
+                fed_server.rec(
+                    client_dict[client_id].name,
+                    state_dict,
+                    n_data,
+                    loss,
+                    coeff,
+                    norm_grad,
+                    client_id,
+                    client_dict[client_id].get_data_distribution(),
+                )
 
         # Global aggregation
         fed_server.select_clients()
         if config["client"]["fed_algo"] == "FedAvg":
             global_state_dict, avg_loss, _ = fed_server.agg()
+        elif config["client"]["fed_algo"] == "FedAvg_Plus":
+            global_state_dict, avg_loss, _ = fed_server.agg()
         elif config["client"]["fed_algo"] == "SCAFFOLD":
             global_state_dict, avg_loss, _, scv_state = fed_server.agg()  # scarffold
+        elif config["client"]["fed_algo"] == "SCAFFOLD_PLUS":
+            global_state_dict, avg_loss, _, scv_state = fed_server.agg()
         elif config["client"]["fed_algo"] == "FedProx":
+            global_state_dict, avg_loss, _ = fed_server.agg()
+        elif config["client"]["fed_algo"] == "FedProx_Plus":
             global_state_dict, avg_loss, _ = fed_server.agg()
         elif config["client"]["fed_algo"] == "FedNova":
             global_state_dict, avg_loss, _ = fed_server.agg()
-        elif config["client"]["fed_algo"] == "FedAvg_Plus":
+        elif config["client"]["fed_algo"] == "FedNova_Plus":
             global_state_dict, avg_loss, _ = fed_server.agg()
-        elif config["client"]["fed_algo"] == "SCAFFOLD_PLUS":
-            global_state_dict, avg_loss, _, scv_state = fed_server.agg()
 
         # Testing and flushing
         accuracy = fed_server.test()
@@ -320,15 +389,16 @@ def fed_run():
         with open(
             os.path.join(
                 config["system"]["res_root"],
-                "['%s'," % config["client"]["fed_algo"]
-                + "'%s'," % config["system"]["model"]
-                + str(config["client"]["num_local_epoch"])
-                + ","
-                + str(config["system"]["num_local_class"])
-                + ","
-                + str(config["system"]["i_seed"]),
-            )
-            + "]",
+                str(config["client"]["fed_algo"])
+                + "_"
+                + str(config["system"]["model"])
+                + "_"
+                + str(config["system"]["dataset"])
+                + "_a="
+                + str(config["system"]["alpha"])
+                + "_x="
+                + str(config["system"]["x"]),
+            ),
             "w",
         ) as jsfile:
             json.dump(recorder.res, jsfile, cls=PythonObjectEncoder)

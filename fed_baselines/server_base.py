@@ -44,6 +44,7 @@ class FedServer(object):
             model_name=self.model_name,
             num_class=self._num_class,
             image_channel=self._image_channel,
+            image_dim=self._image_dim,
         )
         self.model = self.model.to(self._device)
 
@@ -112,6 +113,7 @@ class FedServer(object):
             model_name=self.model_name,
             num_class=self._num_class,
             image_channel=self._image_channel,
+            image_dim=self._image_dim,
         )
         model_state = model.state_dict()
         avg_loss = 0

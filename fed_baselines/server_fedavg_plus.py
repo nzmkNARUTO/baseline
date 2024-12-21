@@ -8,10 +8,11 @@ from utils.fed_utils import assign_dataset, init_model
 
 
 class FedAvgPlusServer(FedServer):
-    def __init__(self, client_list, dataset_id, model_name, len_class, num_round):
+    def __init__(self, client_list, dataset_id, model_name, len_class, num_round, x):
         super().__init__(client_list, dataset_id, model_name)
         self.len_class = len_class
         self.num_round = num_round
+        self.x = x
         self.all_clients_data_distribution = {}
         self.selected_clients_data_distribution = {}
 
@@ -50,7 +51,7 @@ class FedAvgPlusServer(FedServer):
                 output = self.model(data)
                 loss = loss_func(
                     output,
-                    torch.zeros_like(target) + i,
+                    (torch.zeros_like(target) + i).long(),
                 )
                 self.model.zero_grad()
                 loss.backward()
@@ -76,7 +77,7 @@ class FedAvgPlusServer(FedServer):
         for name in self.selected_clients:
             mask = {}
             for i in range(self.len_class):
-                x = 0.5
+                x = self.x
                 ratio = self.selected_clients_data_distribution[name][i] * (1 - x) + x
                 # ratio = 1
                 mask[i] = self.mask(sensitivities[i], self.toOne(ratio))

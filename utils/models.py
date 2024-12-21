@@ -230,11 +230,12 @@ class CNN(nn.Module):
 class ClassificationModel(torch.nn.Module):
     def __init__(self, X_DIMENSION, Y_DIMENSION):
         super(ClassificationModel, self).__init__()
+        self.X_DIMENSION = X_DIMENSION
         self.linear = torch.nn.Linear(X_DIMENSION, 20)
         self.linear2 = torch.nn.Linear(20, Y_DIMENSION)
 
     def forward(self, x):
-        y_pred = self.linear(x.reshape(-1, 28 * 28))
+        y_pred = self.linear(x.reshape(-1, self.X_DIMENSION))
         y_pred = F.relu(y_pred)
         y_pred = self.linear2(y_pred)
         y_pred = F.softmax(y_pred, dim=1)

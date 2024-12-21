@@ -55,7 +55,7 @@ def assign_dataset(dataset_name):
     return num_class, image_dim, image_channel
 
 
-def init_model(model_name, num_class, image_channel):
+def init_model(model_name, num_class, image_channel, image_dim):
     """
     Initialize the model for a specific learning task.
     :param model_name: Model name
@@ -99,7 +99,9 @@ def init_model(model_name, num_class, image_channel):
     elif model_name == "AlexCifarNet":
         model = AlexCifarNet()
     elif model_name == "Linear":
-        model = ClassificationModel(X_DIMENSION=28 * 28, Y_DIMENSION=num_class)
+        model = ClassificationModel(
+            X_DIMENSION=image_dim * image_dim * image_channel, Y_DIMENSION=num_class
+        )
     else:
         print("Model is not supported")
 
