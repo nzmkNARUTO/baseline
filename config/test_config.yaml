@@ -1,16 +1,17 @@
 system:
-  num_client: 5
-  dataset: "MNIST"
-  divide_method: "DropClass"
+  num_client: 3
+  dataset: "CIFAR10"
+  divide_method: "Dirichlet"
   num_local_class: 1
-  alpha: 0.9
-  model: "Linear"
+  alpha: 0.1
+  model: Linear
   i_seed: 235235
   num_round: 5
   res_root: "results"
+  x: 0.1
 
 client:
-  fed_algo: "SCAFFOLD"
+  fed_algo: "FedProx_Plus"
   lr: 0.1
   batch_size: 64
   num_local_epoch: 5
