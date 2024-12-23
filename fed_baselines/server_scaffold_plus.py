@@ -62,7 +62,7 @@ class ScaffoldPlusServer(FedServer):
                 output = self.model(data)
                 loss = loss_func(
                     output,
-                    torch.zeros_like(target) + i,
+                    (torch.zeros_like(target) + i).long(),
                 )
                 self.model.zero_grad()
                 loss.backward()
