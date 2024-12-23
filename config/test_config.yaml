@@ -1,6 +1,6 @@
 system:
-  num_client: 3
-  dataset: "CIFAR10"
+  num_client: 10
+  dataset: "MNIST"
   divide_method: "Dirichlet"
   num_local_class: 1
   alpha: 0.1
@@ -8,12 +8,12 @@ system:
   i_seed: 235235
   num_round: 5
   res_root: "results"
-  x: 0.1
+  x: 0.9
 
 client:
-  fed_algo: "FedProx_Plus"
+  fed_algo: "FedProx"
   lr: 0.1
-  batch_size: 64
+  batch_size: 256
   num_local_epoch: 5
   momentum: 0.9
   num_worker: 4
