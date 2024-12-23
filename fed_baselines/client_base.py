@@ -4,7 +4,7 @@ from utils.fed_utils import assign_dataset, init_model
 
 
 class FedClient(object):
-    def __init__(self, name, epoch, dataset_id, model_name):
+    def __init__(self, name, epoch, dataset_id, model_name, batch_size, lr):
         """
         Initialize the client k for federated learning.
         :param name: Name of the client k
@@ -19,10 +19,10 @@ class FedClient(object):
 
         # Initialize the parameters in the local client
         self._epoch = epoch
-        self._batch_size = 50
-        self._lr = 0.001
+        self._batch_size = batch_size
+        self._lr = lr
         self._momentum = 0.9
-        self.num_workers = 2
+        self.num_workers = 8
         self.loss_rec = []
         self.n_data = 0
 
@@ -77,12 +77,17 @@ class FedClient(object):
         :return: Local updated model, number of local data points, training loss
         """
         train_loader = DataLoader(
-            self.trainset, batch_size=self._batch_size, shuffle=True
+            self.trainset,
+            batch_size=self._batch_size,
+            shuffle=True,
+            num_workers=self.num_workers,
         )
 
         self.model.to(self._device)
         optimizer = torch.optim.SGD(
-            self.model.parameters(), lr=self._lr, momentum=self._momentum
+            self.model.parameters(),
+            lr=self._lr,
+            momentum=self._momentum,
         )
         # optimizer = torch.optim.Adam(self.model.parameters(), lr=self._lr, weight_decay=1e-4)
         loss_func = nn.CrossEntropyLoss()
@@ -101,5 +106,6 @@ class FedClient(object):
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
+        self.loss = loss
 
         return self.model.state_dict(), self.n_data, loss.data.cpu().numpy()

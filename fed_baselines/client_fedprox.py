@@ -6,8 +6,9 @@ from torch.utils.data import DataLoader
 
 
 class FedProxClient(FedClient):
-    def __init__(self, name, epoch, dataset_id, model_name):
-        super().__init__(name, epoch, dataset_id, model_name)
+
+    def __init__(self, name, epoch, dataset_id, model_name, batch_size, lr):
+        super().__init__(name, epoch, dataset_id, model_name, batch_size, lr)
         self.mu = 0.1
 
     def train(self):
@@ -15,12 +16,16 @@ class FedProxClient(FedClient):
         Client trains the model on local dataset using FedProx
         :return: Local updated model, number of local data points, training loss
         """
-        train_loader = DataLoader(self.trainset, batch_size=self._batch_size, shuffle=True)
+        train_loader = DataLoader(
+            self.trainset, batch_size=self._batch_size, shuffle=True
+        )
 
         self.model.to(self._device)
         global_weights = copy.deepcopy(list(self.model.parameters()))
 
-        optimizer = torch.optim.SGD(self.model.parameters(), lr=self._lr, momentum=self._momentum)
+        optimizer = torch.optim.SGD(
+            self.model.parameters(), lr=self._lr, momentum=self._momentum
+        )
         # optimizer = torch.optim.Adam(self.model.parameters(), lr=self._lr, weight_decay=1e-4)
         loss_func = nn.CrossEntropyLoss()
 
@@ -39,16 +44,16 @@ class FedProxClient(FedClient):
                     loss = loss_func(output, b_y.long())
                     optimizer.zero_grad()
 
-                    #fedprox
+                    # fedprox
                     prox_term = 0.0
                     for p_i, param in enumerate(self.model.parameters()):
-                        prox_term += (self.mu / 2) * torch.norm((param - global_weights[p_i])) ** 2
+                        prox_term += (self.mu / 2) * torch.norm(
+                            (param - global_weights[p_i])
+                        ) ** 2
                     loss += prox_term
                     epoch_loss_collector.append(loss.item())
 
                     loss.backward()
                     optimizer.step()
-
-
 
         return self.model.state_dict(), self.n_data, loss.data.cpu().numpy()

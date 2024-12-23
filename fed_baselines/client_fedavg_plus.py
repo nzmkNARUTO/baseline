@@ -7,8 +7,9 @@ from torch.utils.data import DataLoader
 
 
 class FedAvgPlusClient(FedClient):
-    def __init__(self, name, epoch, dataset_id, model_name):
-        super().__init__(name, epoch, dataset_id, model_name)
+
+    def __init__(self, name, epoch, dataset_id, model_name, batch_size, lr):
+        super().__init__(name, epoch, dataset_id, model_name, batch_size, lr)
 
     def load_trainset(self, trainset):
         """

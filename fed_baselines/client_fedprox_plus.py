@@ -7,8 +7,9 @@ from collections import Counter
 
 
 class FedProxPlusClient(FedClient):
-    def __init__(self, name, epoch, dataset_id, model_name):
-        super().__init__(name, epoch, dataset_id, model_name)
+
+    def __init__(self, name, epoch, dataset_id, model_name, batch_size, lr):
+        super().__init__(name, epoch, dataset_id, model_name, batch_size, lr)
         self.mu = 0.1
 
     def train(self):

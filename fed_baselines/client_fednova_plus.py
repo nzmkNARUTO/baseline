@@ -6,8 +6,9 @@ from collections import Counter
 
 
 class FedNovaPlusClient(FedClient):
-    def __init__(self, name, epoch, dataset_id, model_name):
-        super().__init__(name, epoch, dataset_id, model_name)
+
+    def __init__(self, name, epoch, dataset_id, model_name, batch_size, lr):
+        super().__init__(name, epoch, dataset_id, model_name, batch_size, lr)
         self.rho = 0.9
         self._momentum = self.rho
 
