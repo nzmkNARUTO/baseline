@@ -3,11 +3,17 @@ import os
 from multiprocessing import Pool
 
 algo_list = [
-    "SCAFFOLD_PLUS",
+    "FedAvg",
+    "FedAvg_Plus",
+    "FedProx",
+    "FedProx_Plus",
+    "FedNova",
     "FedNova_Plus",
+    "SCAFFOLD",
+    "SCAFFOLD_PLUS",
 ]
 
-dataset_list = ["CIFAR10"]
+dataset_list = ["MNIST", "CIFAR10"]
 
 model_list = [
     "LeNet",
@@ -47,13 +53,13 @@ if __name__ == "__main__":
                                 "model": "Linear",
                                 "i_seed": 235235,
                                 "num_round": 50,
-                                "res_root": f"results/{algo}/{dataset}/a={alpha}",
+                                "res_root": f"/home/airadmin/Share/baseline/results/{algo}/{dataset}/a={alpha}",
                                 "x": x,
                             },
                             "client": {
                                 "fed_algo": algo,
                                 "lr": 0.1,
-                                "batch_size": 64,
+                                "batch_size": 256,
                                 "num_local_epoch": 5,
                                 "momentum": 0.9,
                                 "num_worker": 4,
@@ -71,13 +77,13 @@ if __name__ == "__main__":
                             "model": "Linear",
                             "i_seed": 235235,
                             "num_round": 50,
-                            "res_root": "results",
+                            "res_root": f"/home/airadmin/Share/baseline/results/{algo}/{dataset}/a={alpha}",
                             "x": 1,
                         },
                         "client": {
                             "fed_algo": algo,
                             "lr": 0.1,
-                            "batch_size": 64,
+                            "batch_size": 256,
                             "num_local_epoch": 5,
                             "momentum": 0.9,
                             "num_worker": 4,
