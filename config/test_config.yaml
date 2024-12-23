@@ -1,19 +1,19 @@
 system:
-  num_client: 10
+  num_client: 2
   dataset: "MNIST"
   divide_method: "Dirichlet"
   num_local_class: 1
   alpha: 0.1
   model: Linear
   i_seed: 235235
-  num_round: 5
+  num_round: 1
   res_root: "results"
   x: 0.9
 
 client:
-  fed_algo: "FedProx"
+  fed_algo: "FedNova_Plus"
   lr: 0.1
   batch_size: 256
-  num_local_epoch: 5
+  num_local_epoch: 1
   momentum: 0.9
   num_worker: 4

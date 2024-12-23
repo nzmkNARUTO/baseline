@@ -1,10 +1,10 @@
+from collections import defaultdict
 from fed_baselines.server_base import FedServer
-from utils.models import *
 import torch
+from torch import nn
 import math
 import copy
-from torch.utils.data import DataLoader, random_split
-from utils.fed_utils import assign_dataset, init_model
+from torch.utils.data import DataLoader, random_split, Subset
 
 
 class FedAvgPlusServer(FedServer):
@@ -40,9 +40,9 @@ class FedAvgPlusServer(FedServer):
         loss_func = nn.CrossEntropyLoss().to(self._device)
         for i in range(self.len_class):
             dataloader = DataLoader(
-                self.analysisset,
-                batch_size=len(self.analysisset.indices),
-                shuffle=False,
+                self.analysis_dataset[i],
+                batch_size=len(self.analysis_dataset[i].indices),
+                shuffle=True,
             )
             sensitivity = {}
             for data, target in dataloader:
@@ -138,16 +138,22 @@ class FedAvgPlusServer(FedServer):
 
         return model_state, avg_loss, n_data
 
-    def load_testset(self, testset):
+    def load_testset(self, test_dataset):
         """
         Server loads the test dataset.
         :param data: Dataset for testing.
         """
-        test_size = int(len(testset) * 0.9)
-        analysis_size = len(testset) - test_size
-        self.testset, self.analysisset = random_split(
-            testset, [test_size, analysis_size]
+        test_dataset_size = int(len(test_dataset) * 0.9)
+        analysis_dataset_size = len(test_dataset) - test_dataset_size
+        self.testset, analysis_dataset = random_split(
+            test_dataset, [test_dataset_size, analysis_dataset_size]
         )
+        self.analysis_dataset = {}
+        index = defaultdict(list)
+        for i in analysis_dataset.indices:
+            index[int(analysis_dataset.dataset.targets[i])].append(i)
+        for i in range(self.len_class):
+            self.analysis_dataset[i] = Subset(test_dataset, index[i])
 
     def topk(self, params: dict, ratio):
         topkParams = {}
