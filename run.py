@@ -3,17 +3,11 @@ import os
 from multiprocessing import Pool
 
 algo_list = [
-    "FedAvg",
-    "FedAvg_Plus",
-    "SCAFFOLD",
     "SCAFFOLD_PLUS",
-    "FedProx",
-    "FedProx_Plus",
-    "FedNova",
     "FedNova_Plus",
 ]
 
-dataset_list = ["MNIST", "CIFAR10"]
+dataset_list = ["CIFAR10"]
 
 model_list = [
     "LeNet",
@@ -37,11 +31,36 @@ def run(config):
 
 
 if __name__ == "__main__":
-    p = Pool(5)
+    p = Pool(20)
     for algo in algo_list:
         for dataset in dataset_list:
             for alpha in [0.1, 0.5, 1.0]:
-                for x in [0.1, 0.3, 0.5, 0.8, 1.0]:
+                if "plus" in algo.lower():
+                    for x in [0.1, 0.3, 0.5, 0.8, 1.0]:
+                        config = {
+                            "system": {
+                                "num_client": 5,
+                                "dataset": dataset,
+                                "divide_method": "Dirichlet",
+                                "num_local_class": 1,
+                                "alpha": alpha,
+                                "model": "Linear",
+                                "i_seed": 235235,
+                                "num_round": 50,
+                                "res_root": f"results/{algo}/{dataset}/a={alpha}",
+                                "x": x,
+                            },
+                            "client": {
+                                "fed_algo": algo,
+                                "lr": 0.1,
+                                "batch_size": 64,
+                                "num_local_epoch": 5,
+                                "momentum": 0.9,
+                                "num_worker": 4,
+                            },
+                        }
+                    p.apply_async(run, args=(config,))
+                else:
                     config = {
                         "system": {
                             "num_client": 5,
@@ -53,7 +72,7 @@ if __name__ == "__main__":
                             "i_seed": 235235,
                             "num_round": 50,
                             "res_root": "results",
-                            "x": x,
+                            "x": 1,
                         },
                         "client": {
                             "fed_algo": algo,
