@@ -137,6 +137,8 @@ def fed_run():
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
                 model_name=config["system"]["model"],
+                lr=config["client"]["lr"],
+                batch_size=config["client"]["batch_size"],
             )
         elif config["client"]["fed_algo"] == "FedAvg_Plus":
             client_dict[client_id] = FedAvgPlusClient(
@@ -144,6 +146,8 @@ def fed_run():
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
                 model_name=config["system"]["model"],
+                lr=config["client"]["lr"],
+                batch_size=config["client"]["batch_size"],
             )
         elif config["client"]["fed_algo"] == "SCAFFOLD":
             client_dict[client_id] = ScaffoldClient(
@@ -151,6 +155,8 @@ def fed_run():
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
                 model_name=config["system"]["model"],
+                lr=config["client"]["lr"],
+                batch_size=config["client"]["batch_size"],
             )
         elif config["client"]["fed_algo"] == "SCAFFOLD_PLUS":
             client_dict[client_id] = ScaffoldPlusClient(
@@ -158,6 +164,8 @@ def fed_run():
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
                 model_name=config["system"]["model"],
+                lr=config["client"]["lr"],
+                batch_size=config["client"]["batch_size"],
             )
         elif config["client"]["fed_algo"] == "FedProx":
             client_dict[client_id] = FedProxClient(
@@ -165,6 +173,8 @@ def fed_run():
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
                 model_name=config["system"]["model"],
+                lr=config["client"]["lr"],
+                batch_size=config["client"]["batch_size"],
             )
         elif config["client"]["fed_algo"] == "FedProx_Plus":
             client_dict[client_id] = FedProxPlusClient(
@@ -172,6 +182,8 @@ def fed_run():
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
                 model_name=config["system"]["model"],
+                lr=config["client"]["lr"],
+                batch_size=config["client"]["batch_size"],
             )
         elif config["client"]["fed_algo"] == "FedNova":
             client_dict[client_id] = FedNovaClient(
@@ -179,6 +191,8 @@ def fed_run():
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
                 model_name=config["system"]["model"],
+                lr=config["client"]["lr"],
+                batch_size=config["client"]["batch_size"],
             )
         elif config["client"]["fed_algo"] == "FedNova_Plus":
             client_dict[client_id] = FedNovaPlusClient(
@@ -186,6 +200,8 @@ def fed_run():
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
                 model_name=config["system"]["model"],
+                lr=config["client"]["lr"],
+                batch_size=config["client"]["batch_size"],
             )
         client_dict[client_id].load_trainset(trainset_config["user_data"][client_id])
 
