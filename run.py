@@ -53,7 +53,7 @@ if __name__ == "__main__":
                                 "model": "Linear",
                                 "i_seed": 235235,
                                 "num_round": 50,
-                                "res_root": f"/home/airadmin/Share/baseline/results/{algo}/{dataset}/a={alpha}",
+                                "res_root": f"/home/airadmin/Share/baseline/results/{algo[:-5]}/{dataset}/a={alpha}",
                                 "x": x,
                             },
                             "client": {
@@ -65,7 +65,7 @@ if __name__ == "__main__":
                                 "num_worker": 4,
                             },
                         }
-                    p.apply_async(run, args=(config,))
+                        p.apply_async(run, args=(config,))
                 else:
                     config = {
                         "system": {
