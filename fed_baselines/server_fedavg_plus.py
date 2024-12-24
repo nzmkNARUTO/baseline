@@ -81,7 +81,7 @@ class FedAvgPlusServer(FedServer):
                 ratio = self.selected_clients_data_distribution[name][i] * (1 - x) + x
                 # ratio = 1
                 mask[i] = self.mask(sensitivities[i], self.toOne(ratio))
-            for key in delta_state[name]:
+            for key in mask[i]:
                 delta_state[name][key] = sum(
                     [
                         delta_state[name][key]
@@ -122,8 +122,9 @@ class FedAvgPlusServer(FedServer):
             if name not in self.client_state:
                 continue
             for key in self.client_state[name]:
-                model_state[key] += (
-                    delta_state[name][key] * self.client_n_data[name] / self.n_data
+                model_state[key] = (
+                    model_state[key]
+                    + delta_state[name][key] * self.client_n_data[name] / self.n_data
                 )
 
             avg_loss = (

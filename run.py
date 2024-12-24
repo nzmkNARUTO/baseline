@@ -2,9 +2,9 @@ import yaml
 import os
 from multiprocessing import Pool
 
-algo_list = ["FedAvg"]
+algo_list = ["FedAvg_Plus"]
 
-dataset_list = ["CIFAR10"]
+dataset_list = ["CIFAR10", "MNIST"]
 
 model_list = ["CNN"]
 
