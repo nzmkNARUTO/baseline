@@ -7,7 +7,7 @@ system:
   model: CNN
   i_seed: 235235
   num_round: 20
-  res_root: "results/test"
+  res_root: "/home/airadmin/Share/baseline/results/test"
   x: 0.9
 
 client:
