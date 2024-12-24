@@ -18,7 +18,7 @@ def run(config):
 
 
 if __name__ == "__main__":
-    p = Pool(20)
+    p = Pool(10)
     for algo in algo_list:
         for dataset in dataset_list:
             for model in model_list:
