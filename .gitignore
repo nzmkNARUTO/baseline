@@ -133,5 +133,5 @@ data/
 ref_model
 results/
 config/
-
+!config/test_config.yaml
 figures/
