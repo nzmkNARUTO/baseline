@@ -10,7 +10,7 @@ model_list = ["CNN"]
 
 
 def run(config):
-    file_address = f"config/{config['client']['fed_algo']}_Linear_{config['system']['dataset']}_a={config['system']['alpha']}_x={config['system']['x']}.yaml"
+    file_address = f"config/{config['client']['fed_algo']}_{config['system']['model']}_{config['system']['dataset']}_a={config['system']['alpha']}_x={config['system']['x']}.yaml"
     with open(file_address, "w") as f:
         yaml.dump(config, f)
     print(f"python fl_main.py --config {file_address}")
