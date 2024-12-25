@@ -39,19 +39,19 @@ divide_method_list = {"Dirichlet": [0.1, 0.5, 1.0], "DropClass": [1, 5, 10]}
 def run(config):
     file_address = (
         "config/"
-        + str({config["client"]["fed_algo"]})
+        + str(config["client"]["fed_algo"])
         + "_"
-        + str({config["system"]["dataset"]})
+        + str(config["system"]["dataset"])
         + "_"
-        + str({config["system"]["model"]})
+        + str(config["system"]["model"])
         + "_"
-        + str({config["system"]["divide_method"]})
+        + str(config["system"]["divide_method"])
     )
     if config["system"]["divide_method"] == "Dirichlet":
-        file_address = file_address + "_a=" + str({config["system"]["alpha"]})
+        file_address = file_address + "_a=" + str(config["system"]["alpha"])
     else:
-        file_address = file_address + "_n=" + str({config["system"]["num_local_class"]})
-    file_address = file_address + "_x=" + str({config["system"]["x"]}) + ".yaml"
+        file_address = file_address + "_n=" + str(config["system"]["num_local_class"])
+    file_address = file_address + "_x=" + str(config["system"]["x"]) + ".yaml"
     with open(file_address, "w") as f:
         yaml.dump(config, f)
     print(f"python fl_main.py --config {file_address}")
