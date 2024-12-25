@@ -29,7 +29,10 @@ algo_list = [
     "SCAFFOLD_PLUS",
 ]
 
-dataset_list = {"MNIST": ["Linear", "CNN"], "CIFAR10": ["CNN"]}
+dataset_list = {
+    "MNIST": ["Linear", "CNN", "LeNet"],
+    "CIFAR10": ["CNN", "ResNet18", "AlexCifarNet"],
+}
 divide_method_list = {"Dirichlet": [0.1, 0.5, 1.0], "DropClass": [1, 5, 10]}
 
 
