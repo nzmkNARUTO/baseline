@@ -18,7 +18,10 @@ class FedProxPlusClient(FedClient):
         :return: Local updated model, number of local data points, training loss
         """
         train_loader = DataLoader(
-            self.trainset, batch_size=self._batch_size, shuffle=True
+            self.trainset,
+            batch_size=self._batch_size,
+            shuffle=True,
+            num_workers=self.num_workers,
         )
 
         self.model.to(self._device)
