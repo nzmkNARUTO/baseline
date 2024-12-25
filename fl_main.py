@@ -83,7 +83,7 @@ def fed_run():
         config["client"]["fed_algo"] in algo_list
     ), "The federated learning algorithm is not supported"
 
-    dataset_list = ["MNIST", "CIFAR10", "FashionMNIST", "SVHN", "CIFAR100"]
+    dataset_list = ["MNIST", "CIFAR10", "FashionMNIST", "SVHN", "CIFAR100", "EMNIST"]
     assert config["system"]["dataset"] in dataset_list, "The dataset is not supported"
 
     model_list = [
