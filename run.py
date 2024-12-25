@@ -1,6 +1,7 @@
 import yaml
 import os
-from multiprocessing import Pool
+from multiprocessing import Pool, Lock
+from copy import deepcopy
 
 config = {
     "system": {
@@ -37,25 +38,42 @@ divide_method_list = {"Dirichlet": [0.1, 0.5, 1.0], "DropClass": [1, 5, 10]}
 
 
 def run(config):
-    file_address = (
-        "config/"
-        + str(config["client"]["fed_algo"])
-        + "_"
-        + str(config["system"]["dataset"])
-        + "_"
-        + str(config["system"]["model"])
-        + "_"
-        + str(config["system"]["divide_method"])
-    )
     if config["system"]["divide_method"] == "Dirichlet":
-        file_address = file_address + "_a=" + str(config["system"]["alpha"])
+        file_address = (
+            "config/"
+            + str(config["client"]["fed_algo"])
+            + "_"
+            + str(config["system"]["dataset"])
+            + "_"
+            + str(config["system"]["model"])
+            + "_"
+            + str(config["system"]["divide_method"])
+            + "_a="
+            + str(config["system"]["alpha"])
+            + "_x="
+            + str(config["system"]["x"])
+            + ".yaml"
+        )
     else:
-        file_address = file_address + "_n=" + str(config["system"]["num_local_class"])
-    file_address = file_address + "_x=" + str(config["system"]["x"]) + ".yaml"
+        file_address = (
+            "config/"
+            + str(config["client"]["fed_algo"])
+            + "_"
+            + str(config["system"]["dataset"])
+            + "_"
+            + str(config["system"]["model"])
+            + "_"
+            + str(config["system"]["divide_method"])
+            + "_n="
+            + str(config["system"]["num_local_class"])
+            + "_x="
+            + str(config["system"]["x"])
+            + ".yaml"
+        )
     with open(file_address, "w") as f:
         yaml.dump(config, f)
     print(f"python fl_main.py --config {file_address}")
-    # os.system(f"python fl_main.py --config {file_address}")
+    os.system(f"python fl_main.py --config {file_address}")
 
 
 if __name__ == "__main__":
@@ -84,10 +102,18 @@ if __name__ == "__main__":
                         if "plus" in algo.lower():
                             for x in [0.1, 0.3, 0.5, 0.8, 1.0]:
                                 config["system"]["x"] = x
-                                p.apply_async(run, args=(config,))
+                                # run(config)
+                                p.apply_async(
+                                    run,
+                                    args=(deepcopy(config),),
+                                )
                         else:
                             config["system"]["x"] = 0
-                            p.apply_async(run, args=(config,))
+                            # run(config)
+                            p.apply_async(
+                                run,
+                                args=(deepcopy(config),),
+                            )
     p.close()
     p.join()
     print("All Done!")
