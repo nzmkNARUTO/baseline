@@ -61,8 +61,9 @@ class ScaffoldPlusServer(FedAvgPlusServer):
                         / self.n_data
                     )
 
-                model_state[key] += (
-                    delta_state[name][key] * self.client_n_data[name] / self.n_data
+                model_state[key] = (
+                    model_state[key]
+                    + delta_state[name][key] * self.client_n_data[name] / self.n_data
                 )
 
             avg_loss = (

@@ -53,8 +53,11 @@ class FedNovaPlusServer(FedAvgPlusServer):
                         delta_state[name][key] * self.client_n_data[name] / self.n_data
                     )
                 else:
-                    nova_model_state[key] += (
-                        delta_state[name][key] * self.client_n_data[name] / self.n_data
+                    nova_model_state[key] = (
+                        nova_model_state[key]
+                        + delta_state[name][key]
+                        * self.client_n_data[name]
+                        / self.n_data
                     )
             avg_loss = (
                 avg_loss
@@ -62,7 +65,7 @@ class FedNovaPlusServer(FedAvgPlusServer):
             )
 
         for key in model_state:
-            model_state[key] -= coeff * nova_model_state[key]
+            model_state[key] = model_state[key] - coeff * nova_model_state[key]
 
         self.model.load_state_dict(model_state)
 

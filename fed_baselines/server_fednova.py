@@ -26,16 +26,30 @@ class FedNovaServer(FedServer):
         avg_loss = 0
         coeff = 0.0
         for i, name in enumerate(self.selected_clients):
-            coeff = coeff + self.client_coeff[name] * self.client_n_data[name] / self.n_data
+            coeff = (
+                coeff + self.client_coeff[name] * self.client_n_data[name] / self.n_data
+            )
             for key in self.client_state[name]:
                 if i == 0:
-                    nova_model_state[key] = self.client_norm_grad[name][key] * self.client_n_data[name] / self.n_data
+                    nova_model_state[key] = (
+                        self.client_norm_grad[name][key]
+                        * self.client_n_data[name]
+                        / self.n_data
+                    )
                 else:
-                    nova_model_state[key] = nova_model_state[key] + self.client_norm_grad[name][key] * self.client_n_data[name] / self.n_data
-            avg_loss = avg_loss + self.client_loss[name] * self.client_n_data[name] / self.n_data
+                    nova_model_state[key] = (
+                        nova_model_state[key]
+                        + self.client_norm_grad[name][key]
+                        * self.client_n_data[name]
+                        / self.n_data
+                    )
+            avg_loss = (
+                avg_loss
+                + self.client_loss[name] * self.client_n_data[name] / self.n_data
+            )
 
         for key in model_state:
-            model_state[key] -= coeff * nova_model_state[key]
+            model_state[key] = model_state[key] - coeff * nova_model_state[key]
 
         self.model.load_state_dict(model_state)
 
@@ -65,7 +79,6 @@ class FedNovaServer(FedServer):
         self.client_loss[name] = loss
         self.client_coeff[name] = coeff
         self.client_norm_grad[name].update(norm_grad)
-
 
     def flush(self):
         """
