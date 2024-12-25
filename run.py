@@ -3,8 +3,6 @@ import os
 from multiprocessing import Pool
 
 algo_list = [
-    "FedProx",
-    "FedProx_Plus",
     "FedNova",
     "FedNova_Plus",
     "SCAFFOLD",
