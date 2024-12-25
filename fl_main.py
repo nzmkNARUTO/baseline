@@ -402,21 +402,25 @@ def fed_run():
         if not os.path.exists(config["system"]["res_root"]):
             os.makedirs(config["system"]["res_root"])
 
-        with open(
-            os.path.join(
-                config["system"]["res_root"],
-                str(config["client"]["fed_algo"])
-                + "_"
-                + str(config["system"]["model"])
-                + "_"
-                + str(config["system"]["dataset"])
-                + "_a="
-                + str(config["system"]["alpha"])
-                + "_x="
-                + str(config["system"]["x"]),
-            ),
-            "w",
-        ) as jsfile:
+        file_path = os.path.join(
+            config["system"]["res_root"],
+            str(config["client"]["fed_algo"])
+            + "_"
+            + str(config["system"]["dataset"])
+            + "_"
+            + str(config["system"]["model"])
+            + "_"
+            + str(config["system"]["divide_method"])
+            + "_"
+            + str(
+                "a=" + str(config["system"]["alpha"])
+                if config["system"]["divide_method"] == "Dirichlet"
+                else "n=" + str(config["system"]["num_local_class"])
+            )
+            + "_x="
+            + str(config["system"]["x"]),
+        )
+        with open(file_path, "w") as jsfile:
             json.dump(recorder.res, jsfile, cls=PythonObjectEncoder)
 
 
