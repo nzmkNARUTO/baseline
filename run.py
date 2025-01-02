@@ -50,9 +50,9 @@ def run(config):
         + str(config["system"]["divide_method"])
     )
     if config["system"]["divide_method"] == "Dirichlet":
-        file_address += +"_a=" + str(config["system"]["alpha"]) + ".yaml"
+        file_address += "_a=" + str(config["system"]["alpha"]) + ".yaml"
     else:
-        file_address += +"_n=" + str(config["system"]["num_local_class"]) + ".yaml"
+        file_address += "_n=" + str(config["system"]["num_local_class"]) + ".yaml"
     with open(file_address, "w") as f:
         yaml.dump(config, f)
     print(f"python fl_main.py --config {file_address}")
