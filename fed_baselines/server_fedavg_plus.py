@@ -4,6 +4,7 @@ import torch
 from torch import nn
 import math
 import copy
+import pandas as pd
 from torch.utils.data import DataLoader, random_split, Subset
 
 
@@ -15,23 +16,32 @@ class FedAvgPlusServer(FedServer):
         self.x = x
         self.all_clients_data_distribution = {}
         self.selected_clients_data_distribution = {}
+        self.global_data_distribution = {}
 
     def calculate_data_distribution(self):
-        for name in self.selected_clients:
-            self.selected_clients_data_distribution[name] = (
-                self.all_clients_data_distribution[name]
-            )
-            # Fill in the missing classes
-            for i in range(self.len_class):
-                if i not in self.selected_clients_data_distribution[name]:
-                    self.selected_clients_data_distribution[name][i] = 0
+        # for name in self.selected_clients:
+        #     self.selected_clients_data_distribution[name] = (
+        #         self.all_clients_data_distribution[name]
+        #     )
+        #     # Fill in the missing classes
+        #     for i in range(self.len_class):
+        #         if i not in self.selected_clients_data_distribution[name]:
+        #             self.selected_clients_data_distribution[name][i] = 0
+        selected_clients_data_distribution = (
+            pd.DataFrame(self.all_clients_data_distribution).fillna(0).sort_index()
+        )
+
         # Calculate the data distribution
         for name in self.selected_clients:
-            for i in range(self.len_class):
-                self.selected_clients_data_distribution[name][i] = (
-                    self.selected_clients_data_distribution[name][i]
-                    / self.client_n_data[name]
-                )
+            self.selected_clients_data_distribution[name] = dict(
+                selected_clients_data_distribution[name]
+                / selected_clients_data_distribution[name].sum()
+            )
+        for i in range(self.len_class):
+            self.global_data_distribution[i] = dict(
+                selected_clients_data_distribution.loc[i]
+                / selected_clients_data_distribution.loc[i].sum()
+            )
         pass
 
     def analysis_sensitivity(self):
@@ -77,9 +87,9 @@ class FedAvgPlusServer(FedServer):
         for name in self.selected_clients:
             mask = {}
             for i in range(self.len_class):
-                x = self.x
-                ratio = self.selected_clients_data_distribution[name][i] * (1 - x) + x
-                # ratio = 1
+                # x = self.x
+                # ratio = self.selected_clients_data_distribution[name][i] * (1 - x) + x
+                ratio = self.global_data_distribution[i][name]
                 mask[i] = self.mask(sensitivities[i], self.toOne(ratio))
             for key in mask[i]:
                 delta_state[name][key] = sum(

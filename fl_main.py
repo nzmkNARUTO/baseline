@@ -83,7 +83,7 @@ def fed_run():
         config["client"]["fed_algo"] in algo_list
     ), "The federated learning algorithm is not supported"
 
-    dataset_list = ["MNIST", "CIFAR10", "FashionMNIST", "SVHN", "CIFAR100", "EMNIST"]
+    dataset_list = ["MNIST", "CIFAR10", "FashionMNIST", "SVHN", "CIFAR100"]
     assert config["system"]["dataset"] in dataset_list, "The dataset is not supported"
 
     model_list = [
@@ -416,9 +416,9 @@ def fed_run():
                 "a=" + str(config["system"]["alpha"])
                 if config["system"]["divide_method"] == "Dirichlet"
                 else "n=" + str(config["system"]["num_local_class"])
-            )
-            + "_x="
-            + str(config["system"]["x"]),
+            ),
+            # + "_x="
+            # + str(config["system"]["x"]),
         )
         with open(file_path, "w") as jsfile:
             json.dump(recorder.res, jsfile, cls=PythonObjectEncoder)

@@ -31,43 +31,33 @@ algo_list = [
 ]
 
 dataset_list = {
-    "MNIST": ["Linear", "CNN", "LeNet"],
+    "MNIST": ["Linear", "LeNet"],
     "CIFAR10": ["CNN", "ResNet18", "AlexCifarNet"],
+    "CIFAR100": ["CNN", "ResNet18"],
 }
 divide_method_list = {"Dirichlet": [0.1, 0.5, 1.0], "DropClass": [1, 5, 10]}
 
 
 def run(config):
+    file_address = (
+    "config/"
+    + str(config["client"]["fed_algo"])
+    + "_"
+    + str(config["system"]["dataset"])
+    + "_"
+    + str(config["system"]["model"])
+    + "_"
+    + str(config["system"]["divide_method"]))
     if config["system"]["divide_method"] == "Dirichlet":
-        file_address = (
-            "config/"
-            + str(config["client"]["fed_algo"])
-            + "_"
-            + str(config["system"]["dataset"])
-            + "_"
-            + str(config["system"]["model"])
-            + "_"
-            + str(config["system"]["divide_method"])
+        file_address += (
             + "_a="
             + str(config["system"]["alpha"])
-            + "_x="
-            + str(config["system"]["x"])
             + ".yaml"
         )
     else:
-        file_address = (
-            "config/"
-            + str(config["client"]["fed_algo"])
-            + "_"
-            + str(config["system"]["dataset"])
-            + "_"
-            + str(config["system"]["model"])
-            + "_"
-            + str(config["system"]["divide_method"])
+        file_address += (
             + "_n="
             + str(config["system"]["num_local_class"])
-            + "_x="
-            + str(config["system"]["x"])
             + ".yaml"
         )
     with open(file_address, "w") as f:
@@ -99,21 +89,18 @@ if __name__ == "__main__":
                             config["system"][
                                 "res_root"
                             ] = f"/home/airadmin/Share/baseline/results/{algo.replace("_Plus","").replace("_PLUS","")}/{dataset}/{model}/{divide_method}/n={alpha_or_local_num_class}"
-                        if "plus" in algo.lower():
-                            for x in [0.1, 0.3, 0.5, 0.8, 1.0]:
-                                config["system"]["x"] = x
-                                # run(config)
-                                p.apply_async(
-                                    run,
-                                    args=(deepcopy(config),),
-                                )
-                        else:
-                            config["system"]["x"] = 0
-                            # run(config)
-                            p.apply_async(
-                                run,
-                                args=(deepcopy(config),),
-                            )
+                        # if "plus" in algo.lower():
+                        #     for x in [0.1, 0.3, 0.5, 0.8, 1.0]:
+                        #         config["system"]["x"] = x
+                        #         p.apply_async(
+                        #             run,
+                        #             args=(deepcopy(config),),
+                        #         )
+                        # else:
+                        p.apply_async(
+                            run,
+                            args=(deepcopy(config),),
+                        )
     p.close()
     p.join()
     print("All Done!")
