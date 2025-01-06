@@ -30,6 +30,9 @@ class FedAvgPlusServer(FedServer):
         selected_clients_data_distribution = (
             pd.DataFrame(self.all_clients_data_distribution).fillna(0).sort_index()
         )
+        for i in range(self.len_class):
+            if i not in selected_clients_data_distribution.index:
+                selected_clients_data_distribution.loc[i] = 0
 
         # Calculate the data distribution
         for name in self.selected_clients:
@@ -42,6 +45,10 @@ class FedAvgPlusServer(FedServer):
                 selected_clients_data_distribution.loc[i]
                 / selected_clients_data_distribution.loc[i].sum()
             )
+        for i in self.global_data_distribution:
+            for j in self.global_data_distribution[i]:
+                if math.isnan(self.global_data_distribution[i][j]):
+                    self.global_data_distribution[i][j] = 0
         pass
 
     def analysis_sensitivity(self):
