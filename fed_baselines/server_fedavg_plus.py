@@ -94,10 +94,11 @@ class FedAvgPlusServer(FedServer):
         for name in self.selected_clients:
             mask = {}
             for i in range(self.len_class):
-                # x = self.x
-                # ratio = self.selected_clients_data_distribution[name][i] * (1 - x) + x
-                ratio = self.global_data_distribution[i][name]
+                x = self.x
+                ratio = self.selected_clients_data_distribution[name][i] * (1 - x) + x
+                # ratio = self.global_data_distribution[i][name] * (1 - x) + x
                 mask[i] = self.mask(sensitivities[i], self.toOne(ratio))
+                # mask[i] = self.mask(sensitivities[i], ratio)
             for key in mask[i]:
                 delta_state[name][key] = sum(
                     [

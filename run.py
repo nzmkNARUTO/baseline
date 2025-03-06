@@ -8,7 +8,7 @@ config = {
         "num_client": 5,
         "num_round": 50,
         "i_seed": 235235,
-        "x": -1,
+        "x": 0,
     },
     "client": {
         "lr": 0.1,
