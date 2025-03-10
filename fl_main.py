@@ -416,9 +416,9 @@ def fed_run():
                 "a=" + str(config["system"]["alpha"])
                 if config["system"]["divide_method"] == "Dirichlet"
                 else "n=" + str(config["system"]["num_local_class"])
-            ),
-            # + "_x="
-            # + str(config["system"]["x"]),
+            )
+            + "_x="
+            + str(config["system"]["x"]),
         )
         with open(file_path, "w") as jsfile:
             json.dump(recorder.res, jsfile, cls=PythonObjectEncoder)

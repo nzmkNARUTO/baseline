@@ -7,7 +7,7 @@ config = {
     "system": {
         "num_client": 5,
         "num_round": 50,
-        "i_seed": 235235,
+        "i_seed": 7355608,
         "x": 0,
     },
     "client": {
@@ -84,18 +84,19 @@ if __name__ == "__main__":
                             config["system"][
                                 "res_root"
                             ] = f"/home/airadmin/Share/baseline/results/{algo_name}/{dataset}/{model}/{divide_method}/n={alpha_or_local_num_class}"
-                        # if "plus" in algo.lower():
-                        #     for x in [0.1, 0.3, 0.5, 0.8, 1.0]:
-                        #         config["system"]["x"] = x
-                        #         p.apply_async(
-                        #             run,
-                        #             args=(deepcopy(config),),
-                        #         )
-                        # else:
-                        p.apply_async(
-                            run,
-                            args=(deepcopy(config),),
-                        )
+                        if "plus" in algo.lower():
+                            for x in [0.1, 0.3, 0.5, 0.8, 1.0]:
+                                config["system"]["x"] = x
+                                p.apply_async(
+                                    run,
+                                    args=(deepcopy(config),),
+                                )
+                        else:
+                            config["system"]["x"] = 0
+                            p.apply_async(
+                                run,
+                                args=(deepcopy(config),),
+                            )
     p.close()
     p.join()
     print("All Done!")
