@@ -2,6 +2,7 @@ import yaml
 import os
 from multiprocessing import Pool
 from copy import deepcopy
+import time
 
 config = {
     "system": {
@@ -29,8 +30,10 @@ algo_list = [
 
 dataset_list = {
     "MNIST": ["Linear", "LeNet"],
+    "EMNIST": ["Linear", "LeNet", "MNISTCNN"],
+    "FashionMNIST": ["Linear", "LeNet", "MNISTCNN"],
     "CIFAR10": ["CNN", "ResNet18", "AlexCifarNet"],
-    # "CIFAR100": ["CNN", "ResNet18"],
+    "CIFAR100": ["CNN", "ResNet18", "AlexCifarNet"],
 }
 divide_method_list = {"Dirichlet": [0.1, 0.5, 1.0], "DropClass": [1, 5, 10]}
 
@@ -54,7 +57,7 @@ def run(config):
     with open(file_address, "w") as f:
         yaml.dump(config, f)
     print(f"python fl_main.py --config {file_address}")
-    os.system(f"python fl_main.py --config {file_address}")
+    os.system(f"python fl_main.py --config {file_address} --no_tqdm")
 
 
 if __name__ == "__main__":
@@ -99,6 +102,21 @@ if __name__ == "__main__":
                                 run,
                                 args=(deepcopy(config),),
                             )
+
+        total_tasks = 1
+    # 监控等待中的任务
+    while total_tasks > 0:
+        # _taskqueue 包含等待执行的任务
+        # _cache 包含正在执行和已完成但未获取结果的任务
+        waiting_tasks = p._taskqueue.qsize()
+        total_tasks = len(p._cache)
+        running_tasks = total_tasks - waiting_tasks
+
+        print(
+            f"Total: {total_tasks}, Running: {running_tasks}, Waiting: {waiting_tasks}"
+        )
+        time.sleep(1)
+
     p.close()
     p.join()
     print("All Done!")
