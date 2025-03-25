@@ -66,6 +66,7 @@ def fed_args():
     parser.add_argument(
         "--config", type=str, required=True, help="Yaml file for configuration"
     )
+    parser.add_argument("--no_tqdm", action="store_true", help="Disable tqdm bar")
 
     args = parser.parse_args()
     return args
@@ -100,7 +101,7 @@ def fed_run():
         config["client"]["fed_algo"] in algo_list
     ), "The federated learning algorithm is not supported"
 
-    dataset_list = ["MNIST", "CIFAR10", "FashionMNIST", "SVHN", "CIFAR100"]
+    dataset_list = ["MNIST", "EMNIST", "FashionMNIST", "CIFAR10", "SVHN", "CIFAR100"]
     assert config["system"]["dataset"] in dataset_list, "The dataset is not supported"
 
     model_list = [
@@ -111,7 +112,12 @@ def fed_run():
         "ResNet50",
         "ResNet101",
         "ResNet152",
+        "VGG11",
+        "VGG13",
+        "VGG16",
+        "VGG19",
         "CNN",
+        "MNISTCNN",
         "Linear",
     ]
     assert config["system"]["model"] in model_list, "The model is not supported"
@@ -362,8 +368,10 @@ def fed_run():
     global_state_dict = fed_server.state_dict()
 
     # Main process of federated learning in multiple communication rounds
-
-    pbar = tqdm(range(config["system"]["num_round"]))
+    if args.no_tqdm:
+        pbar = range(config["system"]["num_round"])
+    else:
+        pbar = tqdm(range(config["system"]["num_round"]))
     for global_round in pbar:
         for client_id in trainset_config["users"]:
             # Local training
@@ -555,12 +563,13 @@ def fed_run():
 
         if max_acc < accuracy:
             max_acc = accuracy
-        pbar.set_description(
-            "Global Round: %d" % global_round
-            + "| Train loss: %.4f " % avg_loss
-            + "| Accuracy: %.4f" % accuracy
-            + "| Max Acc: %.4f" % max_acc
-        )
+        if not args.no_tqdm:
+            pbar.set_description(
+                "Global Round: %d" % global_round
+                + "| Train loss: %.4f " % avg_loss
+                + "| Accuracy: %.4f" % accuracy
+                + "| Max Acc: %.4f" % max_acc
+            )
 
         # Save the results
         if not os.path.exists(config["system"]["res_root"]):

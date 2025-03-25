@@ -73,15 +73,15 @@ class LeNet(nn.Module):
 # Further ResNet models
 def generate_resnet(num_classes=10, in_channels=1, model_name="ResNet18"):
     if model_name == "ResNet18":
-        model = models.resnet18(pretrained=True)
+        model = models.resnet18(weights="ResNet18_Weights.DEFAULT")
     elif model_name == "ResNet34":
-        model = models.resnet34(pretrained=True)
+        model = models.resnet34(weights="ResNet34_Weights.DEFAULT")
     elif model_name == "ResNet50":
-        model = models.resnet50(pretrained=True)
+        model = models.resnet50(weights="ResNet50_Weights.DEFAULT")
     elif model_name == "ResNet101":
-        model = models.resnet101(pretrained=True)
+        model = models.resnet101(weights="ResNet101_Weights.DEFAULT")
     elif model_name == "ResNet152":
-        model = models.resnet152(pretrained=True)
+        model = models.resnet152(weights="ResNet152_Weights.DEFAULT")
     model.conv1 = nn.Conv2d(
         in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
     )
@@ -94,21 +94,21 @@ def generate_resnet(num_classes=10, in_channels=1, model_name="ResNet18"):
 # Further Vgg models
 def generate_vgg(num_classes=10, in_channels=1, model_name="vgg11"):
     if model_name == "VGG11":
-        model = models.vgg11(pretrained=False)
+        model = models.vgg11()
     elif model_name == "VGG11_bn":
-        model = models.vgg11_bn(pretrained=True)
+        model = models.vgg11_bn()
     elif model_name == "VGG13":
-        model = models.vgg11(pretrained=False)
+        model = models.vgg11()
     elif model_name == "VGG13_bn":
-        model = models.vgg11_bn(pretrained=True)
+        model = models.vgg11_bn()
     elif model_name == "VGG16":
-        model = models.vgg11(pretrained=False)
+        model = models.vgg11()
     elif model_name == "VGG16_bn":
-        model = models.vgg11_bn(pretrained=True)
+        model = models.vgg11_bn()
     elif model_name == "VGG19":
-        model = models.vgg11(pretrained=False)
+        model = models.vgg11()
     elif model_name == "VGG19_bn":
-        model = models.vgg11_bn(pretrained=True)
+        model = models.vgg11_bn()
 
     # first_conv_layer = [nn.Conv2d(1, 3, kernel_size=3, stride=1, padding=1, dilation=1, groups=1, bias=True)]
     # first_conv_layer.extend(list(model.features))
@@ -227,17 +227,126 @@ class CNN(nn.Module):
         return output
 
 
+class MNISTCNN(nn.Module):
+    def __init__(self, num_classes=10, in_channels=1):
+        super(MNISTCNN, self).__init__()
+
+        self.fp_con1 = nn.Sequential(
+            OrderedDict(
+                [
+                    (
+                        "con0",
+                        nn.Conv2d(
+                            in_channels=in_channels,
+                            out_channels=32,
+                            kernel_size=3,
+                            padding=1,
+                        ),
+                    ),
+                    ("relu0", nn.ReLU(inplace=True)),
+                ]
+            )
+        )
+
+        self.ternary_con2 = nn.Sequential(
+            OrderedDict(
+                [
+                    # Conv Layer block 1
+                    (
+                        "conv1",
+                        nn.Conv2d(
+                            in_channels=32,
+                            out_channels=64,
+                            kernel_size=3,
+                            padding=1,
+                            bias=False,
+                        ),
+                    ),
+                    ("norm1", nn.BatchNorm2d(64)),
+                    ("relu1", nn.ReLU(inplace=True)),
+                    ("pool1", nn.MaxPool2d(kernel_size=2, stride=2)),
+                    # Conv Layer block 2
+                    (
+                        "conv2",
+                        nn.Conv2d(
+                            in_channels=64,
+                            out_channels=128,
+                            kernel_size=3,
+                            padding=1,
+                            bias=False,
+                        ),
+                    ),
+                    ("norm2", nn.BatchNorm2d(128)),
+                    ("relu2", nn.ReLU(inplace=True)),
+                    (
+                        "conv3",
+                        nn.Conv2d(
+                            in_channels=128,
+                            out_channels=128,
+                            kernel_size=3,
+                            padding=1,
+                            bias=False,
+                        ),
+                    ),
+                    ("norm3", nn.BatchNorm2d(128)),
+                    ("relu3", nn.ReLU(inplace=True)),
+                    ("pool2", nn.MaxPool2d(kernel_size=2, stride=2)),
+                    # nn.Dropout2d(p=0.05),
+                    # Conv Layer block 3
+                    (
+                        "conv3",
+                        nn.Conv2d(
+                            in_channels=128,
+                            out_channels=256,
+                            kernel_size=3,
+                            padding=1,
+                            bias=False,
+                        ),
+                    ),
+                    ("norm3", nn.BatchNorm2d(256)),
+                    ("relu3", nn.ReLU(inplace=True)),
+                    (
+                        "conv4",
+                        nn.Conv2d(
+                            in_channels=256,
+                            out_channels=256,
+                            kernel_size=3,
+                            padding=1,
+                            bias=False,
+                        ),
+                    ),
+                    ("norm4", nn.BatchNorm2d(256)),
+                    ("relu4", nn.ReLU(inplace=True)),
+                    ("pool4", nn.MaxPool2d(kernel_size=2, stride=2)),
+                ]
+            )
+        )
+
+        self.fp_fc = nn.Linear(2304, num_classes, bias=False)
+
+    def forward(self, x):
+        x = self.fp_con1(x)
+        x = self.ternary_con2(x)
+        x = x.view(x.size(0), -1)
+        x = self.fp_fc(x)
+        output = F.log_softmax(x, dim=1)
+        return output
+
+
 class ClassificationModel(torch.nn.Module):
     def __init__(self, X_DIMENSION, Y_DIMENSION):
         super(ClassificationModel, self).__init__()
         self.X_DIMENSION = X_DIMENSION
-        self.linear = torch.nn.Linear(X_DIMENSION, 20)
-        self.linear2 = torch.nn.Linear(20, Y_DIMENSION)
+        self.fc1 = torch.nn.Linear(X_DIMENSION, 512)
+        self.fc2 = torch.nn.Linear(512, 256)
+        self.fc3 = torch.nn.Linear(256, Y_DIMENSION)
 
     def forward(self, x):
-        y_pred = self.linear(x.reshape(-1, self.X_DIMENSION))
+        y_pred = self.fc1(x.reshape(-1, self.X_DIMENSION))
         y_pred = F.relu(y_pred)
-        y_pred = self.linear2(y_pred)
+        y_pred = self.fc2(y_pred)
+        y_pred = F.relu(y_pred)
+        y_pred = self.fc3(y_pred)
         y_pred = F.softmax(y_pred, dim=1)
         return y_pred
 

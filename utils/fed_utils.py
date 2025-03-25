@@ -88,6 +88,8 @@ def init_model(model_name, num_class, image_channel, image_dim):
         model = LeNet(num_classes=num_class, in_channels=image_channel)
     elif model_name == "CNN":
         model = CNN(num_classes=num_class, in_channels=image_channel)
+    elif model_name == "MNISTCNN":
+        model = MNISTCNN(num_classes=num_class, in_channels=image_channel)
     elif model_name == "VGG11":
         model = generate_vgg(
             num_classes=num_class, in_channels=image_channel, model_name=model_name
