@@ -108,4 +108,25 @@ class FedClient(object):
                     optimizer.step()
         self.loss = loss
 
+        # nonzero_count, total_count, sparsity = self.get_sparsity()
+        # print(f"Client {self.name} sparsity: {sparsity:.2f}%")
+
         return self.model.state_dict(), self.n_data, loss.data.cpu().numpy()
+
+    def get_sparsity(self):
+        """统计模型中非零参数的数量"""
+        nonzero_count = 0
+        total_count = 0
+
+        for name, param in self.model.named_parameters():
+            if param.requires_grad:  # 只统计需要梯度的参数
+                tensor = param.data
+                nz_count = torch.count_nonzero(tensor).item()
+                total = tensor.numel()
+
+                nonzero_count += nz_count
+                total_count += total
+
+        sparsity = 100.0 * (1 - nonzero_count / total_count)
+
+        return nonzero_count, total_count, sparsity
