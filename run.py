@@ -21,14 +21,10 @@ config = {
 
 
 algo_list = [
-    "FedAvg",
-    "FedAvg_Plus",
-    "FedProx",
-    "FedProx_Plus",
-    "FedNova",
-    "FedNova_Plus",
-    "SCAFFOLD",
-    "SCAFFOLD_PLUS",
+    "FedAvg_Minus",
+    "FedProx_Minus",
+    "FedNova_Minus",
+    "SCAFFOLD_Minus",
 ]
 
 dataset_list = {
@@ -65,7 +61,12 @@ if __name__ == "__main__":
     p = Pool(5)
     for algo in algo_list:
         config["client"]["fed_algo"] = algo
-        algo_name = algo.replace("_Plus", "").replace("_PLUS", "")
+        algo_name = (
+            algo.replace("_Plus", "")
+            .replace("_PLUS", "")
+            .replace("_Minus", "")
+            .replace("_MINUS", "")
+        )
         for dataset in dataset_list:
             config["system"]["dataset"] = dataset
             for model in dataset_list[dataset]:
@@ -86,7 +87,7 @@ if __name__ == "__main__":
                                 "res_root"
                             ] = f"/home/airadmin/Share/baseline/results/{algo_name}/{dataset}/{model}/{divide_method}/n={alpha_or_local_num_class}"
                         if "plus" in algo.lower():
-                            for x in [0.1, 0.3, 0.5, 0.8, 1.0]:
+                            for x in [0.1, 0.3, 0.5, 0.7, 0.9]:
                                 config["system"]["x"] = x
                                 p.apply_async(
                                     run,
