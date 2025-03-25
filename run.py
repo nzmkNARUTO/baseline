@@ -22,17 +22,24 @@ config = {
 
 
 algo_list = [
+    "FedAvg",
+    "FedAvg_Plus",
     "FedAvg_Minus",
-    "FedProx_Minus",
+    "FedNova",
+    "FedNova_Plus",
     "FedNova_Minus",
+    "FedProx",
+    "FedProx_Plus",
+    "FedProx_Minus",
+    "SCAFFOLD",
+    "SCAFFOLD_Plus",
     "SCAFFOLD_Minus",
 ]
 
 dataset_list = {
-    "MNIST": ["Linear", "LeNet"],
+    "MNIST": ["MNISTCNN"],
     "EMNIST": ["Linear", "LeNet", "MNISTCNN"],
     "FashionMNIST": ["Linear", "LeNet", "MNISTCNN"],
-    "CIFAR10": ["CNN", "ResNet18", "AlexCifarNet"],
     "CIFAR100": ["CNN", "ResNet18", "AlexCifarNet"],
 }
 divide_method_list = {"Dirichlet": [0.1, 0.5, 1.0], "DropClass": [1, 5, 10]}
