@@ -358,7 +358,6 @@ def divide_data(
             user_data = Subset(trainset, client_idcs[i])
             trainset_config["user_data"][user] = user_data
             trainset_config["num_samples"] = len(user_data)
-        pass
     else:
         raise ValueError("Invalid divide method")
 

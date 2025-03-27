@@ -38,9 +38,9 @@ algo_list = [
 
 dataset_list = {
     "MNIST": ["MNISTCNN"],
-    "EMNIST": ["Linear", "LeNet", "MNISTCNN"],
-    "FashionMNIST": ["Linear", "LeNet", "MNISTCNN"],
-    "CIFAR100": ["CNN", "ResNet18", "AlexCifarNet"],
+    # "EMNIST": ["Linear", "LeNet", "MNISTCNN"],
+    # "FashionMNIST": ["Linear", "LeNet", "MNISTCNN"],
+    # "CIFAR100": ["CNN", "ResNet18"],
 }
 divide_method_list = {"Dirichlet": [0.1, 0.5, 1.0], "DropClass": [1, 5, 10]}
 
