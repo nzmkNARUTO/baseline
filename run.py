@@ -38,12 +38,12 @@ algo_list = [
 ]
 
 dataset_list = {
-    "MNIST": ["MNISTCNN"],
-    # "EMNIST": ["Linear", "LeNet", "MNISTCNN"],
-    # "FashionMNIST": ["Linear", "LeNet", "MNISTCNN"],
-    # "CIFAR100": ["CNN", "ResNet18"],
+    # "MNIST": ["MNISTCNN"],
+    "EMNIST": ["MNISTCNN", "Linear", "LeNet"],
+    "FashionMNIST": ["MNISTCNN", "Linear", "LeNet"],
+    "CIFAR100": ["CNN", "ResNet18"],
 }
-divide_method_list = {"Dirichlet": [0.1, 0.5, 1.0], "DropClass": [1, 5, 10]}
+divide_method_list = {"Dirichlet": [0.1, 1.0], "DropClass": [5, 10]}
 
 
 def run(config):
@@ -99,7 +99,7 @@ if __name__ == "__main__":
                                 "res_root"
                             ] = f"results/{algo_name}/{dataset}/{model}/{divide_method}/n={alpha_or_local_num_class}"
                         if "plus" in algo.lower() or "minus" in algo.lower():
-                            for x in [0.1, 0.3, 0.5, 0.7, 0.9]:
+                            for x in [0.2, 0.5, 0.8]:
                                 config["system"]["x"] = x
                                 results.append(
                                     p.apply_async(
