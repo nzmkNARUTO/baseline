@@ -64,7 +64,7 @@ def run(config):
     with open(file_address, "w") as f:
         yaml.dump(config, f)
     print(f"python fl_main.py --config {file_address}")
-    os.system(f"python fl_main.py --config {file_address} --no_tqdm")
+    os.system(f"python fl_main.py --config {file_address}")
 
 
 if __name__ == "__main__":
@@ -112,17 +112,17 @@ if __name__ == "__main__":
 
         total_tasks = 1
     # 监控等待中的任务
-    while total_tasks > 0:
-        # _taskqueue 包含等待执行的任务
-        # _cache 包含正在执行和已完成但未获取结果的任务
-        waiting_tasks = p._taskqueue.qsize()
-        total_tasks = len(p._cache)
-        running_tasks = total_tasks - waiting_tasks
+    # while total_tasks > 0:
+    #     # _taskqueue 包含等待执行的任务
+    #     # _cache 包含正在执行和已完成但未获取结果的任务
+    #     waiting_tasks = p._taskqueue.qsize()
+    #     total_tasks = len(p._cache)
+    #     running_tasks = total_tasks - waiting_tasks
 
-        print(
-            f"Total: {total_tasks}, Running: {running_tasks}, Waiting: {waiting_tasks}"
-        )
-        time.sleep(1)
+    #     print(
+    #         f"Total: {total_tasks}, Running: {running_tasks}, Waiting: {waiting_tasks}"
+    #     )
+    #     time.sleep(1)
 
     p.close()
     p.join()
