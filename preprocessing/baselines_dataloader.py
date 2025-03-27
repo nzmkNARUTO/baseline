@@ -260,7 +260,7 @@ def divide_data(
                             * num_partition
                         ]
                     )
-        for user in tqdm(config_class.keys()):
+        for user in config_class.keys():
             user_data_indexes = torch.tensor([])
             for cls in config_class[user]:
                 user_data_index = config_data[cls][1][config_data[cls][0]]
@@ -315,7 +315,7 @@ def divide_data(
                             * num_partition
                         ]
                     )
-        for user in tqdm(config_class.keys()):
+        for user in config_class.keys():
             user_data_indexes = torch.tensor([])
             for cls in config_class[user]:
                 user_data_index = config_data[cls][1][config_data[cls][0]]
