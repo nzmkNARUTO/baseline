@@ -64,7 +64,7 @@ def run(config):
     with open(file_address, "w") as f:
         yaml.dump(config, f)
     print(f"python fl_main.py --config {file_address}")
-    os.system(f"python fl_main.py --config {file_address} --no-tqdm")
+    os.system(f"python fl_main.py --config {file_address} --no_tqdm")
 
 
 if __name__ == "__main__":
