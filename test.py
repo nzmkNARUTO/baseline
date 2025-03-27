@@ -1,13 +1,4 @@
-import torch
-from ptflops import get_model_complexity_info
-from utils.models import ClassificationModel
-import torch.nn.utils.prune as prune
-import torchvision
-import torchvision.transforms as transforms
-from preprocessing.baselines_dataloader import load_data
+import os
 
-load_data("EMNIST")
-load_data("FashionMNIST")
-load_data("MNIST")
-load_data("CIFAR10")
-load_data("CIFAR100")
+path = "/home/airadmin/Share/baseline/results/FedAvg/CIFAR10/CNN/Dirichlet/a=1.0/FedAvg_CIFAR10_CNN_Dirichlet_a=1.0_x=0.2"
+print(os.path.exists(path))
