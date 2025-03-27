@@ -3,6 +3,7 @@ import os
 from multiprocessing import Pool
 from copy import deepcopy
 import time
+from tqdm import tqdm
 
 config = {
     "system": {
@@ -114,15 +115,17 @@ if __name__ == "__main__":
                                     args=(deepcopy(config),),
                                 )
                             )
-
-    not_done = 1
-    # 监控等待中的任务
-    while not_done > 0:
-        done = sum(1 for r in results if r.ready())
-        not_done = len(results) - done
-        print(f"已完成任务: {done}, 未完成任务: {not_done}")
-
-        time.sleep(10)
+    not_done = len(results)
+    last_done = 0
+    with tqdm(total=len(results)) as pbar:
+        # 监控等待中的任务
+        while not_done:
+            done = sum(1 for r in results if r.ready())
+            pbar.update(done - last_done)
+            last_done = done
+            not_done = len(results) - done
+            # print(f"已完成任务: {done}, 未完成任务: {not_done}")
+            time.sleep(1)
 
     p.close()
     p.join()
