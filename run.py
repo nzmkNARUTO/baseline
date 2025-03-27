@@ -64,11 +64,12 @@ def run(config):
     with open(file_address, "w") as f:
         yaml.dump(config, f)
     print(f"python fl_main.py --config {file_address}")
-    os.system(f"python fl_main.py --config {file_address}")
+    os.system(f"python fl_main.py --config {file_address} --no-tqdm")
 
 
 if __name__ == "__main__":
     p = Pool(5)
+    results = []
     for algo in algo_list:
         config["client"]["fed_algo"] = algo
         algo_name = (
@@ -99,30 +100,29 @@ if __name__ == "__main__":
                         if "plus" in algo.lower() or "minus" in algo.lower():
                             for x in [0.1, 0.3, 0.5, 0.7, 0.9]:
                                 config["system"]["x"] = x
+                                results.append(
+                                    p.apply_async(
+                                        run,
+                                        args=(deepcopy(config),),
+                                    )
+                                )
+                        else:
+                            config["system"]["x"] = 0
+                            results.append(
                                 p.apply_async(
                                     run,
                                     args=(deepcopy(config),),
                                 )
-                        else:
-                            config["system"]["x"] = 0
-                            p.apply_async(
-                                run,
-                                args=(deepcopy(config),),
                             )
 
-        total_tasks = 1
+    not_done = 1
     # 监控等待中的任务
-    # while total_tasks > 0:
-    #     # _taskqueue 包含等待执行的任务
-    #     # _cache 包含正在执行和已完成但未获取结果的任务
-    #     waiting_tasks = p._taskqueue.qsize()
-    #     total_tasks = len(p._cache)
-    #     running_tasks = total_tasks - waiting_tasks
+    while not_done > 0:
+        done = sum(1 for r in results if r.ready())
+        not_done = len(results) - done
+        print(f"已完成任务: {done}, 未完成任务: {not_done}")
 
-    #     print(
-    #         f"Total: {total_tasks}, Running: {running_tasks}, Waiting: {waiting_tasks}"
-    #     )
-    #     time.sleep(1)
+        time.sleep(10)
 
     p.close()
     p.join()
