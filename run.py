@@ -33,8 +33,8 @@ algo_list = [
     "FedProx_Plus",
     "FedProx_Minus",
     "SCAFFOLD",
-    "SCAFFOLD_Plus",
-    "SCAFFOLD_Minus",
+    "SCAFFOLD_PLUS",
+    "SCAFFOLD_MINUS",
 ]
 
 dataset_list = {
@@ -47,25 +47,44 @@ divide_method_list = {"Dirichlet": [0.1, 1.0], "DropClass": [5, 10]}
 
 
 def run(config):
-    file_address = (
-        "config/"
-        + str(config["client"]["fed_algo"])
+    file_path = os.path.join(
+        config["system"]["res_root"],
+        str(config["client"]["fed_algo"])
         + "_"
         + str(config["system"]["dataset"])
         + "_"
         + str(config["system"]["model"])
         + "_"
         + str(config["system"]["divide_method"])
+        + "_"
+        + str(
+            "a=" + str(config["system"]["alpha"])
+            if config["system"]["divide_method"] == "Dirichlet"
+            else "n=" + str(config["system"]["num_local_class"])
+        )
+        + "_x="
+        + str(config["system"]["x"]),
     )
-    if config["system"]["divide_method"] == "Dirichlet":
-        file_address += "_a=" + str(config["system"]["alpha"])
-    else:
-        file_address += "_n=" + str(config["system"]["num_local_class"])
-    file_address += "_x=" + str(config["system"]["x"]) + ".yaml"
-    with open(file_address, "w") as f:
-        yaml.dump(config, f)
-    print(f"python fl_main.py --config {file_address}")
-    os.system(f"python fl_main.py --config {file_address} --no_tqdm")
+    if not os.path.exists(file_path):
+        file_address = (
+            "config/"
+            + str(config["client"]["fed_algo"])
+            + "_"
+            + str(config["system"]["dataset"])
+            + "_"
+            + str(config["system"]["model"])
+            + "_"
+            + str(config["system"]["divide_method"])
+        )
+        if config["system"]["divide_method"] == "Dirichlet":
+            file_address += "_a=" + str(config["system"]["alpha"])
+        else:
+            file_address += "_n=" + str(config["system"]["num_local_class"])
+        file_address += "_x=" + str(config["system"]["x"]) + ".yaml"
+        with open(file_address, "w") as f:
+            yaml.dump(config, f)
+        print(f"python fl_main.py --config {file_address}")
+        os.system(f"python fl_main.py --config {file_address} --no_tqdm")
 
 
 if __name__ == "__main__":
