@@ -55,7 +55,7 @@ class FedAvgPlusServer(FedServer):
         self.calculate_data_distribution()
         sensitivities = {}
         loss_func = nn.CrossEntropyLoss().to(self._device)
-        for i in range(self.len_class):
+        for i in self.analysis_dataset.keys():
             dataloader = DataLoader(
                 self.analysis_dataset[i],
                 batch_size=len(self.analysis_dataset[i].indices),
@@ -171,8 +171,12 @@ class FedAvgPlusServer(FedServer):
         index = defaultdict(list)
         for i in analysis_dataset.indices:
             index[int(analysis_dataset.dataset.targets[i])].append(i)
-        for i in range(self.len_class):
-            self.analysis_dataset[i] = Subset(test_dataset, index[i])
+        if 0 in index.keys():
+            for i in range(self.len_class):
+                self.analysis_dataset[i] = Subset(test_dataset, index[i])
+        else:
+            for i in range(self.len_class):
+                self.analysis_dataset[i] = Subset(test_dataset, index[i + 1])
 
     def topk(self, params: dict, ratio):
         topkParams = {}
