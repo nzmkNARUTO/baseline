@@ -148,8 +148,12 @@ class FedAvgMinusServer(FedServer):
         index = defaultdict(list)
         for i in analysis_dataset.indices:
             index[int(analysis_dataset.dataset.targets[i])].append(i)
-        for i in range(self.len_class):
-            self.analysis_dataset[i] = Subset(test_dataset, index[i])
+        if 0 in index.keys():
+            for i in range(self.len_class):
+                self.analysis_dataset[i] = Subset(test_dataset, index[i])
+        else:
+            for i in range(self.len_class):
+                self.analysis_dataset[i] = Subset(test_dataset, index[i + 1])
 
     def topk(self, params: dict, ratio):
         topkParams = {}
