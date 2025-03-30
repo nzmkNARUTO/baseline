@@ -66,7 +66,7 @@ def run(config):
         + "_x="
         + str(config["system"]["x"]),
     )
-    if not os.path.exists(file_path):
+    if not os.path.exists(config["system"]["res_root"]):
         file_address = (
             "config/"
             + str(config["client"]["fed_algo"])
