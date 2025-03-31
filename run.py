@@ -89,7 +89,7 @@ def run(config):
 
 
 if __name__ == "__main__":
-    p = Pool(5)
+    p = Pool(2)
     results = []
     for algo in algo_list:
         config["client"]["fed_algo"] = algo
