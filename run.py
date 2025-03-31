@@ -110,14 +110,14 @@ if __name__ == "__main__":
                             config["system"]["alpha"] = alpha_or_local_num_class
                             config["system"][
                                 "res_root"
-                            ] = f"~/Share/baseline/results/{algo_name}/{dataset}/{model}/{divide_method}/a={alpha_or_local_num_class}"
+                            ] = f"/home/airadmin/Share/baseline/results/{algo_name}/{dataset}/{model}/{divide_method}/a={alpha_or_local_num_class}"
                         else:
                             config["system"][
                                 "num_local_class"
                             ] = alpha_or_local_num_class
                             config["system"][
                                 "res_root"
-                            ] = f"~/Share/baseline/results/{algo_name}/{dataset}/{model}/{divide_method}/n={alpha_or_local_num_class}"
+                            ] = f"/home/airadmin/Share/baseline/results/{algo_name}/{dataset}/{model}/{divide_method}/n={alpha_or_local_num_class}"
                         if "plus" in algo.lower() or "minus" in algo.lower():
                             for x in [0.2, 0.5, 0.8]:
                                 config["system"]["x"] = x
