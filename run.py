@@ -119,7 +119,7 @@ if __name__ == "__main__":
                                 "res_root"
                             ] = f"/home/airadmin/Share/baseline/results/{algo_name}/{dataset}/{model}/{divide_method}/n={alpha_or_local_num_class}"
                         if "plus" in algo.lower() or "minus" in algo.lower():
-                            for x in [0.2, 0.5, 0.8]:
+                            for x in [0.5]:
                                 config["system"]["x"] = x
                                 results.append(
                                     p.apply_async(
