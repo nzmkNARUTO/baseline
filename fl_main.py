@@ -36,6 +36,8 @@ from fed_baselines.client_scaffold_plus import ScaffoldPlusClient
 from fed_baselines.server_scaffold_minus import ScaffoldMinusServer
 from fed_baselines.client_scaffold_minus import ScaffoldMinusClient
 
+from fed_baselines.server_heteroFL import HeteroFLServer
+
 from postprocessing.recorder import Recorder
 from preprocessing.baselines_dataloader import divide_data
 from utils.models import *
@@ -96,6 +98,7 @@ def fed_run():
         "SCAFFOLD",
         "SCAFFOLD_PLUS",
         "SCAFFOLD_MINUS",
+        "HeteroFL",
     ]
     assert (
         config["client"]["fed_algo"] in algo_list
@@ -262,6 +265,15 @@ def fed_run():
                 lr=config["client"]["lr"],
                 batch_size=config["client"]["batch_size"],
             )
+        elif config["client"]["fed_algo"] == "HeteroFL":
+            client_dict[client_id] = FedClient(
+                client_id,
+                dataset_id=config["system"]["dataset"],
+                epoch=config["client"]["num_local_epoch"],
+                model_name=config["system"]["model"],
+                lr=config["client"]["lr"],
+                batch_size=config["client"]["batch_size"],
+            )
         client_dict[client_id].load_trainset(trainset_config["user_data"][client_id])
 
     # Initialize the clients w.r.t. the federated learning algorithms and the specific federated settings
@@ -364,6 +376,13 @@ def fed_run():
             x=config["system"]["x"],
         )
         scv_state = fed_server.scv.state_dict()
+    elif config["client"]["fed_algo"] == "HeteroFL":
+        fed_server = HeteroFLServer(
+            trainset_config["users"],
+            dataset_id=config["system"]["dataset"],
+            model_name=config["system"]["model"],
+            x=config["system"]["x"],
+        )
     fed_server.load_testset(testset)
     global_state_dict = fed_server.state_dict()
 
@@ -525,6 +544,10 @@ def fed_run():
                     client_id,
                     client_dict[client_id].get_data_distribution(),
                 )
+            elif config["client"]["fed_algo"] == "HeteroFL":
+                client_dict[client_id].update(global_state_dict)
+                state_dict, n_data, loss = client_dict[client_id].train()
+                fed_server.rec(client_dict[client_id].name, state_dict, n_data, loss)
 
         # Global aggregation
         fed_server.select_clients()
@@ -552,6 +575,8 @@ def fed_run():
             global_state_dict, avg_loss, _, scv_state = fed_server.agg()
         elif config["client"]["fed_algo"] == "SCAFFOLD_MINUS":
             global_state_dict, avg_loss, _, scv_state = fed_server.agg()
+        elif config["client"]["fed_algo"] == "HeteroFL":
+            global_state_dict, avg_loss, _ = fed_server.agg()
 
         # Testing and flushing
         accuracy = fed_server.test()
