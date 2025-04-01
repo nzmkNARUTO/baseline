@@ -75,7 +75,7 @@ class HeteroFLServer(FedServer):
     def mask(self, weight, ratio):
         mask = {}
         for key in weight.keys():
-            mask[key] = torch.rand_like(self.model.state_dict()[key])
+            mask[key] = torch.zeros_like(weight[key])
             for i in range(mask[key].numel()):
                 mask[key].reshape(-1)[i] = 1 if random() > ratio else 0
         return mask
