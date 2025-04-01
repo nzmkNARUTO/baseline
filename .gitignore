@@ -135,3 +135,5 @@ results/
 config/
 !config/test_config.yaml
 figures/
+.vscode/launch.json
+.vscode/settings.json
