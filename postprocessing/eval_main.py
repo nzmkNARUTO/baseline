@@ -35,6 +35,10 @@ def res_eval():
     res_files = [f for f in os.listdir(args.sys_res_root)]
     for f in res_files:
         recorder.load(os.path.join(args.sys_res_root, f), label=f)
+
+    for res in recorder.res_list:
+        print(f"{res[1]} : {max(res[0]['server']['iid_accuracy'])}")
+
     recorder.plot()
     plt.show()
     plt.savefig("figures/result.png")
