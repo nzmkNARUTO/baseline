@@ -119,7 +119,11 @@ if __name__ == "__main__":
                             config["system"][
                                 "res_root"
                             ] = f"/home/airadmin/Share/baseline/results/{algo_name}/{dataset}/{model}/{divide_method}/n={alpha_or_local_num_class}"
-                        if "plus" in algo.lower() or "minus" in algo.lower():
+                        if (
+                            "plus" in algo.lower()
+                            or "minus" in algo.lower()
+                            or algo == "HeteroFL"
+                        ):
                             for x in [0.2, 0.5, 0.8]:
                                 config["system"]["x"] = x
                                 results.append(
