@@ -23,29 +23,26 @@ config = {
 
 
 algo_list = [
-    # "FedAvg",
-    # "FedAvg_Plus",
-    # "FedAvg_Minus",
-    # "FedNova",
-    # "FedNova_Plus",
-    # "FedNova_Minus",
+    "FedAvg",
+    "FedAvg_Plus",
+    "FedAvg_Minus",
+    "FedNova",
+    "FedNova_Plus",
+    "FedNova_Minus",
     "FedProx",
     "FedProx_Plus",
     "FedProx_Minus",
-    # "SCAFFOLD",
-    # "SCAFFOLD_PLUS",
-    # "SCAFFOLD_MINUS",
+    "SCAFFOLD",
+    "SCAFFOLD_PLUS",
+    "SCAFFOLD_MINUS",
 ]
 
 dataset_list = {
-    # "MNIST": ["MNISTCNN", "Linear"],
-    "EMNIST": [
-        # "MNISTCNN",
-        "Linear",
-    ],
-    # "FashionMNIST": ["MNISTCNN", "Linear"],
-    # "CIFAR10": ["CNN", "ResNet18"],
-    # "CIFAR100": ["CNN", "ResNet18"],
+    "MNIST": ["MNISTCNN", "Linear"],
+    "EMNIST": ["MNISTCNN", "Linear"],
+    "FashionMNIST": ["MNISTCNN", "Linear"],
+    "CIFAR10": ["CNN", "ResNet18"],
+    "CIFAR100": ["CNN", "ResNet18"],
 }
 divide_method_list = {"Dirichlet": [0.1, 1.0], "DropClass": [5, 10]}
 
@@ -92,7 +89,7 @@ def run(config):
 
 
 if __name__ == "__main__":
-    p = Pool(5)
+    p = Pool(2)
     results = []
     for algo in algo_list:
         config["client"]["fed_algo"] = algo
@@ -122,7 +119,7 @@ if __name__ == "__main__":
                                 "res_root"
                             ] = f"/home/airadmin/Share/baseline/results/{algo_name}/{dataset}/{model}/{divide_method}/n={alpha_or_local_num_class}"
                         if "plus" in algo.lower() or "minus" in algo.lower():
-                            for x in [0.2, 0.5, 0.8]:
+                            for x in [0.5]:
                                 config["system"]["x"] = x
                                 results.append(
                                     p.apply_async(
