@@ -39,7 +39,7 @@ def res_eval():
     for res in recorder.res_list:
         print(f"{res[1]} : {max(res[0]['server']['iid_accuracy'])}")
 
-    recorder.plot()
+    recorder.plot2()
     plt.show()
     plt.savefig("figures/result.png")
 

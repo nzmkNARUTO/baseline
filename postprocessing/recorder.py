@@ -5,6 +5,9 @@ from json import JSONEncoder
 import pickle
 
 json_types = (list, dict, str, int, float, bool, type(None))
+plt.rcParams["font.sans-serif"] = ["SimHei"]  # 或者使用其他支持中文的字体
+plt.rcParams["axes.unicode_minus"] = False  # 解决负号显示问题
+plt.rcParams["font.size"] = 16
 
 
 class PythonObjectEncoder(JSONEncoder):
@@ -55,11 +58,30 @@ class Recorder(object):
             )
 
         for i, ax in enumerate(axes):
-            ax.set_xlabel("# of Epochs", size=6)
             if i == 0:
-                ax.set_ylabel("Testing Accuracy", size=6)
+                ax.set_ylabel("准确率")
             if i == 1:
-                ax.set_ylabel("Training Loss", size=6)
-            ax.legend(prop={"size": 6})
-            ax.tick_params(axis="both", labelsize=6)
+                ax.set_ylabel("Loss")
+                ax.set_xlabel("训练轮次")
+                ax.legend(prop={"size": 12})
+            ax.tick_params(axis="both")
             ax.grid()
+
+    def plot2(self):
+        """
+        Plot the testing accuracy and training loss on number of epochs or communication rounds
+        """
+        plt.figure(figsize=(10, 6))
+        for i, (res, label) in enumerate(self.res_list):
+            plt.plot(
+                np.array(res["server"]["iid_accuracy"]),
+                label=label,
+                alpha=1,
+                linewidth=2,
+            )
+
+        plt.ylabel("准确率")
+        plt.xlabel("训练轮次")
+        plt.legend()
+        plt.tick_params(axis="both")
+        plt.grid()

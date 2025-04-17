@@ -5,36 +5,36 @@ import matplotlib.colors as mcolors
 # 设置中文字体支持
 plt.rcParams["font.sans-serif"] = ["SimHei"]  # 或者使用其他支持中文的字体
 plt.rcParams["axes.unicode_minus"] = False  # 解决负号显示问题
-plt.rcParams["font.size"] = 18
+
 # 模拟数据：8个算法在5个数据集上的准确率
 # 行: 算法, 列: 数据集
 # 线性
-# accuracy_data = np.array(
-#     [
-#         [0.84, 0.76, 0.93, 0.80, 0.77],  # 算法A
-#         [0.86, 0.78, 0.94, 0.79, 0.79],  # 算法B
-#         [0.84, 0.77, 0.93, 0.82, 0.80],  # 算法C
-#         [0.85, 0.77, 0.94, 0.80, 0.81],  # 算法D
-#         [0.82, 0.65, 0.90, 0.61, 0.76],  # 算法E
-#         [0.83, 0.65, 0.91, 0.62, 0.75],  # 算法F
-#         [0.68, 0.42, 0.76, 0.14, 0.41],  # 算法G
-#         [0.86, 0.58, 0.77, 0.33, 0.54],  # 算法H
-#     ]
-# )
-
-# CNN(缺失类别)
 accuracy_data = np.array(
     [
-        [0.89, 0.78, 0.48],  # 算法A
-        [0.89, 0.82, 0.62],  # 算法B
-        [0.89, 0.78, 0.48],  # 算法C
-        [0.89, 0.81, 0.58],  # 算法D
-        [0.89, 0.81, 0.67],  # 算法E
-        [0.89, 0.80, 0.68],  # 算法F
-        [0.88, 0.74, 0.55],  # 算法G
-        [0.90, 0.77, 0.63],  # 算法H
+        [0.84, 0.76, 0.93, 0.80, 0.77],  # 算法A
+        [0.86, 0.78, 0.94, 0.79, 0.79],  # 算法B
+        [0.84, 0.77, 0.93, 0.82, 0.80],  # 算法C
+        [0.85, 0.77, 0.94, 0.80, 0.81],  # 算法D
+        [0.82, 0.65, 0.90, 0.61, 0.76],  # 算法E
+        [0.83, 0.65, 0.91, 0.62, 0.75],  # 算法F
+        [0.68, 0.42, 0.76, 0.14, 0.41],  # 算法G
+        [0.86, 0.58, 0.77, 0.33, 0.54],  # 算法H
     ]
 )
+
+# CNN(缺失类别)
+# accuracy_data = np.array(
+#     [
+#         [0.89, 0.78, 0.48],  # 算法A
+#         [0.89, 0.82, 0.62],  # 算法B
+#         [0.89, 0.78, 0.48],  # 算法C
+#         [0.89, 0.81, 0.58],  # 算法D
+#         [0.89, 0.81, 0.67],  # 算法E
+#         [0.89, 0.80, 0.68],  # 算法F
+#         [0.88, 0.74, 0.55],  # 算法G
+#         [0.90, 0.77, 0.63],  # 算法H
+#     ]
+# )
 
 # CNN(Dirichlet)
 # accuracy_data = np.array(
@@ -89,11 +89,12 @@ for base in base_algorithms:
             break
 datasets = [
     "MNIST\n(缺失类别)",
+    # "EMNIST\n(缺失类别)",
     "FashionMNIST\n(缺失类别)",
-    "CIFAR10\n(缺失类别)",
-    # "MNIST\n(Dirichlet)",
-    # "EMNIST\n(Dirichlet)",
-    # "FashionMNIST\n(Dirichlet)",
+    # "CIFAR10\n(缺失类别)",
+    "MNIST\n(Dirichlet)",
+    "EMNIST\n(Dirichlet)",
+    "FashionMNIST\n(Dirichlet)",
     # "CIFAR10\n(Dirichlet)",
     # "CIFAR100\n(Dirichlet)",
 ]
@@ -190,7 +191,7 @@ for i, algo in enumerate(algorithms):
         )
 
 # 添加图例
-plt.legend(loc="upper right", ncol=2)
+plt.legend(loc="upper right", ncol=2, fontsize=12)
 
 # 设置x轴刻度和标签 - 调整为新的柱状图位置
 # 计算每组柱状图的中心位置
@@ -198,11 +199,11 @@ group_centers = [
     dataset_positions[i] + (len(base_algorithms) - 1) * bar_width / 2
     for i in range(len(datasets))
 ]
-plt.xticks(group_centers, datasets)
+plt.xticks(group_centers, datasets, fontsize=12)
 
 # 设置y轴范围和标签
-plt.ylim(0.0, 1.0)
-plt.ylabel("准确率")
+plt.ylim(0.1, 1.0)
+plt.ylabel("准确率", fontsize=14)
 
 # 设置网格线
 plt.grid(axis="y", linestyle="--", alpha=0.7)
@@ -222,7 +223,7 @@ for i, algo in enumerate(algorithms):
                 f"{value:.2f}",
                 ha="center",
                 va="top",
-                fontsize=15,  # 增大字体
+                fontsize=12,  # 增大字体
                 color="white",  # 白色文字更容易在柱子内部看清
                 fontweight="bold",
                 rotation=45,  # 文字倾斜45度
@@ -239,7 +240,7 @@ for i, algo in enumerate(algorithms):
                 f"{value:.2f}",
                 ha="center",
                 va="bottom",
-                fontsize=15,  # 增大字体
+                fontsize=12,  # 增大字体
                 fontweight="bold",
                 rotation=45,  # 文字倾斜45度
             )
@@ -248,12 +249,7 @@ for i, algo in enumerate(algorithms):
 plt.tight_layout(rect=[0, 0.05, 1, 1])
 
 # 在底部添加标题
-plt.figtext(
-    0.5,
-    0.01,
-    "(b) CNN模型在三个数据集上的性能比较(缺失类别)",
-    ha="center",
-)
+plt.figtext(0.5, 0.01, "(a) 线性模型在三个数据集上的性能比较", ha="center", fontsize=16)
 
 # 保存图像（可选）
 # plt.savefig('algorithm_performance_overview.png', dpi=300, bbox_inches='tight')
