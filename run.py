@@ -125,6 +125,8 @@ if __name__ == "__main__":
                             "plus" in algo.lower()
                             or "minus" in algo.lower()
                             or algo == "HeteroFL"
+                            or algo == "FedRolex"
+                            or algo == "FIARSE"
                         ):
                             for x in [0.2, 0.5, 0.8]:
                                 config["system"]["x"] = x
