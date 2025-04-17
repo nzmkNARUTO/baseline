@@ -186,7 +186,7 @@ class FedAvgMinusServer(FedServer):
 
                 nonzero_count += nz_count
                 total_count += total
-            sparsity = 1 - nonzero_count / total_count
+            sparsity = 1 - nonzero_count / total_count  # 稀疏度是指零参数占比
             if sparsity > ratio:
                 left = (left + right) / 2
             elif sparsity < ratio - 0.05:

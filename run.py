@@ -35,15 +35,17 @@ algo_list = [
     # "SCAFFOLD",
     # "SCAFFOLD_PLUS",
     # "SCAFFOLD_MINUS",
-    "HeteroFL",
+    # "PruneFL",
+    "FedRolex",
+    "FIARSE",
 ]
 
 dataset_list = {
     "MNIST": ["MNISTCNN", "Linear"],
     "EMNIST": ["MNISTCNN", "Linear"],
     "FashionMNIST": ["MNISTCNN", "Linear"],
-    "CIFAR10": ["CNN", "ResNet18"],
-    "CIFAR100": ["CNN", "ResNet18"],
+    "CIFAR10": ["CNN"],
+    "CIFAR100": ["CNN"],
 }
 divide_method_list = {"Dirichlet": [0.1, 1.0], "DropClass": [5, 10]}
 
@@ -90,7 +92,7 @@ def run(config):
 
 
 if __name__ == "__main__":
-    p = Pool(3)
+    p = Pool(2)
     results = []
     for algo in algo_list:
         config["client"]["fed_algo"] = algo

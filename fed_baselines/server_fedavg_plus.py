@@ -98,7 +98,7 @@ class FedAvgPlusServer(FedServer):
                 ratio = self.selected_clients_data_distribution[name][i] * (1 - x) + x
                 # ratio = self.global_data_distribution[i][name] * (1 - x) + x
                 mask[i] = self.mask(sensitivities[i], self.toOne(ratio))
-                # mask[i] = self.mask(sensitivities[i], ratio)
+                # mask[i] = self.mask(sensitivities[i], 1 / self.len_class)
             for key in mask[i]:
                 delta_state[name][key] = sum(
                     [
@@ -199,6 +199,7 @@ class FedAvgPlusServer(FedServer):
     def toUniform(self, data_distribution):
         # return data_distribution
         average = 1 / self.len_class
+        # return average
         return (
             data_distribution
             + (average - data_distribution) / self.num_round * self.round

@@ -7,7 +7,7 @@ from torch.utils.data import random_split, Subset
 from random import random
 
 
-class HeteroFLServer(FedServer):
+class FedRolexServer(FedServer):
     def __init__(self, client_list, dataset_id, model_name, x):
         super().__init__(client_list, dataset_id, model_name)
         self.x = x
@@ -26,10 +26,13 @@ class HeteroFLServer(FedServer):
 
     def prune_weight(self, weight):
         # prune the weight
-        mask = self.mask(weight, self.x)
-        for key in mask:
-            weight[key] = weight[key] * mask[key]
-        return weight
+        masks = self.mask(weight, self.x)
+        pruned_weight = {name: weight for name in self.selected_clients}
+        for i, name in enumerate(self.selected_clients):
+            mask = masks[(i + self.round) % len(masks)]
+            for key in weight.keys():
+                pruned_weight[name][key] = weight[key] * mask[key]
+        return pruned_weight
 
     def agg(self):
         """
@@ -73,9 +76,17 @@ class HeteroFLServer(FedServer):
         return model_state, avg_loss, n_data
 
     def mask(self, weight, ratio):
-        mask = {}
-        for key in weight.keys():
-            mask[key] = torch.zeros_like(weight[key])
-            for i in range(mask[key].numel()):
-                mask[key].reshape(-1)[i] = 1 if random() > ratio else 0
-        return mask
+        masks = []
+        for i in range(len(self.selected_clients)):
+            mask = {}
+            for key in weight.keys():
+                mask[key] = torch.zeros_like(weight[key])
+                start = [
+                    int(ratio / len(self.selected_clients) * i)
+                    for i in range(len(self.selected_clients))
+                ]
+                params_num = int(mask[key].numel() * (1 - ratio))
+                for j in range(start[i], start[i] + params_num):
+                    mask[key].reshape(-1)[j] = 1
+            masks.append(mask)
+        return masks
