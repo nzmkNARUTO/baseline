@@ -36,8 +36,8 @@ class FIARSEClient(FedClient):
         # optimizer = torch.optim.Adam(self.model.parameters(), lr=self._lr, weight_decay=1e-4)
         loss_func = nn.CrossEntropyLoss()
 
-        nonzero_count, total_count, sparsity = self.get_sparsity()
-        print(f"Client {self.name} sparsity: {sparsity:.2f}%")
+        # nonzero_count, total_count, sparsity = self.get_sparsity()
+        # print(f"Client {self.name} sparsity: {sparsity:.2f}%")
 
         # Training process
         for epoch in range(self._epoch):
@@ -61,7 +61,7 @@ class FIARSEClient(FedClient):
                             param.data = param.data * self.mask[name]
         self.loss = loss
 
-        nonzero_count, total_count, sparsity = self.get_sparsity()
-        print(f"Client {self.name} sparsity: {sparsity:.2f}%")
+        # nonzero_count, total_count, sparsity = self.get_sparsity()
+        # print(f"Client {self.name} sparsity: {sparsity:.2f}%")
 
         return self.model.state_dict(), self.n_data, loss.data.cpu().numpy()
