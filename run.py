@@ -36,7 +36,7 @@ algo_list = [
     # "SCAFFOLD_PLUS",
     # "SCAFFOLD_MINUS",
     # "PruneFL",
-    "FedRolex",
+    # "FedRolex",
     "FIARSE",
 ]
 
@@ -92,7 +92,7 @@ def run(config):
 
 
 if __name__ == "__main__":
-    p = Pool(2)
+    p = Pool(5)
     results = []
     for algo in algo_list:
         config["client"]["fed_algo"] = algo
