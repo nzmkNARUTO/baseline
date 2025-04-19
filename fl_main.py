@@ -39,6 +39,7 @@ from fed_baselines.client_scaffold_minus import ScaffoldMinusClient
 from fed_baselines.server_prunefl import PruneFLServer
 from fed_baselines.server_fedrolex import FedRolexServer
 from fed_baselines.server_fiarse import FIARSEServer
+from fed_baselines.client_fiarse import FIARSEClient
 
 from postprocessing.recorder import Recorder
 from preprocessing.baselines_dataloader import divide_data
@@ -100,7 +101,7 @@ def fed_run():
         "SCAFFOLD",
         "SCAFFOLD_PLUS",
         "SCAFFOLD_MINUS",
-        "HeteroFL",
+        "PruneFL",
         "FedRolex",
         "FIARSE",
     ]
@@ -269,7 +270,7 @@ def fed_run():
                 lr=config["client"]["lr"],
                 batch_size=config["client"]["batch_size"],
             )
-        elif config["client"]["fed_algo"] == "HeteroFL":
+        elif config["client"]["fed_algo"] == "PruneFL":
             client_dict[client_id] = FedClient(
                 client_id,
                 dataset_id=config["system"]["dataset"],
@@ -288,7 +289,7 @@ def fed_run():
                 batch_size=config["client"]["batch_size"],
             )
         elif config["client"]["fed_algo"] == "FIARSE":
-            client_dict[client_id] = FedClient(
+            client_dict[client_id] = FIARSEClient(
                 client_id,
                 dataset_id=config["system"]["dataset"],
                 epoch=config["client"]["num_local_epoch"],
@@ -398,7 +399,7 @@ def fed_run():
             x=config["system"]["x"],
         )
         scv_state = fed_server.scv.state_dict()
-    elif config["client"]["fed_algo"] == "HeteroFL":
+    elif config["client"]["fed_algo"] == "PruneFL":
         fed_server = PruneFLServer(
             trainset_config["users"],
             dataset_id=config["system"]["dataset"],
@@ -580,7 +581,7 @@ def fed_run():
                     client_id,
                     client_dict[client_id].get_data_distribution(),
                 )
-            elif config["client"]["fed_algo"] == "HeteroFL":
+            elif config["client"]["fed_algo"] == "PruneFL":
                 client_dict[client_id].update(global_state_dict)
                 state_dict, n_data, loss = client_dict[client_id].train()
                 fed_server.rec(client_dict[client_id].name, state_dict, n_data, loss)
@@ -592,7 +593,10 @@ def fed_run():
                 state_dict, n_data, loss = client_dict[client_id].train()
                 fed_server.rec(client_dict[client_id].name, state_dict, n_data, loss)
             elif config["client"]["fed_algo"] == "FIARSE":
-                client_dict[client_id].update(global_state_dict)
+                if fed_server.round == 0:
+                    client_dict[client_id].update(global_state_dict, {})
+                else:
+                    client_dict[client_id].update(global_state_dict, mask)
                 state_dict, n_data, loss = client_dict[client_id].train()
                 fed_server.rec(client_dict[client_id].name, state_dict, n_data, loss)
 
@@ -622,12 +626,12 @@ def fed_run():
             global_state_dict, avg_loss, _, scv_state = fed_server.agg()
         elif config["client"]["fed_algo"] == "SCAFFOLD_MINUS":
             global_state_dict, avg_loss, _, scv_state = fed_server.agg()
-        elif config["client"]["fed_algo"] == "HeteroFL":
+        elif config["client"]["fed_algo"] == "PruneFL":
             global_state_dict, avg_loss, _ = fed_server.agg()
         elif config["client"]["fed_algo"] == "FedRolex":
             global_state_dict, avg_loss, _ = fed_server.agg()
         elif config["client"]["fed_algo"] == "FIARSE":
-            global_state_dict, avg_loss, _ = fed_server.agg()
+            global_state_dict, avg_loss, _, mask = fed_server.agg()
 
         # Testing and flushing
         accuracy = fed_server.test()

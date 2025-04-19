@@ -39,7 +39,7 @@ class FIARSEServer(FedServer):
         mask = self.mask(weight, self.x)
         for key in mask:
             weight[key] = weight[key] * mask[key]
-        return weight
+        return weight, mask
 
     def agg(self):
         """
@@ -78,9 +78,9 @@ class FIARSEServer(FedServer):
         self.round = self.round + 1
         n_data = self.n_data
 
-        model_state = self.prune_weight(model_state)
+        model_state, mask = self.prune_weight(model_state)
 
-        return model_state, avg_loss, n_data
+        return model_state, avg_loss, n_data, mask
 
     def mask(self, weight, ratio):
         sensitivities = self.topk(weight, 1 - ratio)
